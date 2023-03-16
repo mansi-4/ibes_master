@@ -192,7 +192,7 @@ def registerUser(request):
                 subject='User Activation Link',
                 message=f'''
                     Hi, {user.name}  \n
-                    your Offline2Online account is almost ready.\n 
+                    your OfflineToOnline account is almost ready.\n 
                     To activate your account please Click the following link.\n
                     http://localhost:3000/user_activation/{token} \n 
                     Please note that this activation link is valid only upto 1 hour. \n
@@ -233,7 +233,7 @@ def verifyUser(request):
                 subject='Password Reset Link',
                 message=f'''
                     Hi, \n 
-                    You recently requested to reset the password for your Offline2Online account.\n 
+                    You recently requested to reset the password for your OfflineToOnline account.\n 
                     Click the link below to proceed.\n
                     http://localhost:3000/reset_password/{token} \n 
                     Please note that this activation link is valid only upto 10 minutes. \n
