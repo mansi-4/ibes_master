@@ -54,7 +54,7 @@ function CartScreen() {
                     <ListGroup.Item key={item.product_variation_id}>
                         <Row>
                             <Col>
-                                <Image src={`http://localhost:8003/${item.image}`} alt={item.name} fluid rounded />
+                                <Image src={`https://ibes.offlinetoonline.in//${item.image}`} alt={item.name} fluid rounded />
                             </Col>
                             <Col>
                                 <Link to={`/product/${item.product_id}`}>{item.name}</Link>

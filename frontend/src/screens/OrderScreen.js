@@ -251,7 +251,7 @@ function OrderScreen() {
                                 
                                 {/* paid buttons will come here */}
                                 {loadingPay && <Loader />}
-                                {userInfo && userInfo.isAdmin && order.paymentMethod==="Cash On Delivery" && (
+                                {userInfo && userInfo.isAdmin && order.paymentMethod==="Cash On Delivery" && !order.isPaid &&(
                                     <ListGroup.Item className="text-center Hide" > 
                                         <Button
                                             type='button'

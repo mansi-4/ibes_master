@@ -194,7 +194,7 @@ def registerUser(request):
                     Hi, {user.name}  \n
                     your OfflineToOnline account is almost ready.\n 
                     To activate your account please Click the following link.\n
-                    http://localhost:3000/user_activation/{token} \n 
+                    <a href="http://localhost:3000/user_activation/{token}">activate</a> \n 
                     Please note that this activation link is valid only upto 1 hour. \n
                     After you activate your account, you will be able to login.\n 
                     Thanks & Regards, 

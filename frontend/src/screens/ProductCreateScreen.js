@@ -118,14 +118,20 @@ function ProductCreateScreen() {
         });
       }
       const [variationsListArr,setVariationsListArr]=useState([]);
+      const [validationError,setValidationError]=useState(false)
       function addVariationsList(){
-        variationsListArr.push(productVariations)
-        setProductVariations({
-            color_id:"",
-            size_id:"",
-            stock:"",
-            price:""
-        })
+        if(color_id === "" && size_id === "" && stock === "" && price==="" ){
+            setValidationError(true)
+        }
+        else{
+            variationsListArr.push(productVariations)
+            setProductVariations({
+                color_id:"",
+                size_id:"",
+                stock:"",
+                price:""
+            })
+        }
       }
       function deleteProductVariationsArrItem(id){
         setVariationsListArr(variationsListArr.filter((i,index)=>(index!== id)))
@@ -133,8 +139,8 @@ function ProductCreateScreen() {
 
       const submitHandler = (e) => {
         e.preventDefault()
-        if(images.length > 5){
-            alert("you can upload images max upto 5...");
+        if(images.length > 4){
+            alert("you can upload images max upto 4...");
         }else if(variationsListArr.length < 0){
             alert("Please add at least one product variation");
 
@@ -162,6 +168,7 @@ function ProductCreateScreen() {
         <Form onSubmit={submitHandler}>
                 {loadingCreate && <Loader />}
                 {errorCreate && <Message variant='danger'>{errorCreate}</Message>}
+                {validationError && <Message variant='danger'>{"All fields are mandatory"}</Message>}
                 <FormContainer>
                     <h1>Create Product</h1>
                             

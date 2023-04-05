@@ -249,7 +249,7 @@ function ProductEditScreen() {
                             <Form.Group controlId='image'>
                                 <Form.Label>Images</Form.Label>
                                 <Form.Control
-                                    required
+                                    
                                     type='text'
                                     placeholder='Enter image'
                                     value={image}
@@ -263,7 +263,7 @@ function ProductEditScreen() {
                                         label='Choose File'
                                         onChange={uploadFileHandler}
                                         multiple
-                                        required
+                                        
                                     ></Form.Control>
                                 {uploading && <Loader />}
                             </Form.Group>

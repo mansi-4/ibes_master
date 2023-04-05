@@ -147,7 +147,7 @@ function CustomerOrderScreen() {
                                                 <ListGroup.Item key={index}>
                                                     <Row> 
                                                         <Col>
-                                                            <Image src={`http://localhost:8003/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}}/>
+                                                            <Image src={`https://ibes.offlinetoonline.in/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}}/>
                                                         </Col>
 
                                                         <Col>
