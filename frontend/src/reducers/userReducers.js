@@ -12,6 +12,9 @@ import {
     USER_ACTIVATION_FAIL,
     USER_ACTIVATION_SUCCESS,
 
+    USER_REACTIVATION_REQUEST,
+    USER_REACTIVATION_FAIL,
+    USER_REACTIVATION_SUCCESS,
 
     USER_VERIFY_REQUEST,
     USER_VERIFY_FAIL,
@@ -115,6 +118,27 @@ export const userActivationReducer= (state={},action)=>{
             return state
     }
 }
+export const userReActivationReducer= (state={},action)=>{
+    switch(action.type){
+        case USER_REACTIVATION_REQUEST:
+            return {
+                loading:true,
+            }
+        case USER_REACTIVATION_SUCCESS:
+            return {
+                loading:false,
+                reactivation:action.payload
+            }
+        case USER_REACTIVATION_FAIL:
+            return {
+                loading:false,
+                error:action.payload
+            } 
+        
+        default:
+            return state
+    }
+}
 
 export const userVerifyReducer= (state={},action)=>{
     switch(action.type){
@@ -138,6 +162,32 @@ export const userVerifyReducer= (state={},action)=>{
 }
 
 export const userDetailsReducer= (state={user:{}},action)=>{
+    switch(action.type){
+        case USER_DETAILS_REQUEST:
+            return {
+                ...state,loading:true,
+            }
+        case USER_DETAILS_SUCCESS:
+            return {
+                loading:false,
+                user:action.payload
+            }
+        case USER_DETAILS_FAIL:
+            return {
+                loading:false,
+                error:action.payload
+            } 
+        case USER_DETAILS_RESET:
+            return {
+                user:{}   
+            }
+      
+        default:
+            return state
+    }
+}
+
+export const userActivationDetailsReducer= (state={user:{}},action)=>{
     switch(action.type){
         case USER_DETAILS_REQUEST:
             return {

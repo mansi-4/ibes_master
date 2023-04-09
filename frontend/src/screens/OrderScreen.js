@@ -10,6 +10,7 @@ import {logout} from "../actions/userAction"
 import jwt_decode from "jwt-decode";
 import axios from 'axios'
 import jsPDF from "jspdf"
+import html2canvas from 'html2canvas';
 
 function OrderScreen() {
     const { id } = useParams();
@@ -70,33 +71,50 @@ function OrderScreen() {
     }
 
     function downloadInvoice(){
-        try{
             setinvoiceLoading(true)
             const Hide=document.getElementsByClassName("Hide")
             for (var i=0;i<Hide.length;i++){
                 Hide[i].hidden=true
             }
-            // Hide.hidden=true
-            var htmlreport = document.querySelector("#htmlpdfreport").innerHTML; 
-            axios .post( "http://localhost:8003/api/orders/invoice/", JSON.stringify(htmlreport), 
-            { 
-                responseType: "blob" 
-            }) 
-            .then(response => 
-                { 
-                    var url = window.URL.createObjectURL( new Blob([response.data], { type: "application/pdf" }) ),
-                    anchor = document.createElement("a"); anchor.href = url; 
-                    anchor.download = "invoice.pdf"; 
-                    anchor.click(); 
-                    setinvoiceLoading(false)
-                    const Hide=document.getElementsByClassName("Hide")
-                    for (var i=0;i<Hide.length;i++){
-                        Hide[i].hidden=false
-                    }
-                });
-        }catch(error){
-            setinvoiceLoading(false)
-        }
+            const HideImages=document.getElementsByClassName("hideImages")
+            for (var i=0;i<HideImages.length;i++){
+                HideImages[i].hidden=true
+            }
+            const doc = new jsPDF({ format: 'letter' });
+            var htmlreport = document.querySelector("#htmlpdfreport"); 
+            
+            html2canvas(htmlreport, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                doc.addImage(imgData, 'PNG', 10, 10, 180, 240);
+                doc.save(order._id+'.pdf');
+                const HideImages=document.getElementsByClassName("hideImages")
+                for (var i=0;i<HideImages.length;i++){
+                    HideImages[i].hidden=false
+                }
+                setinvoiceLoading(false)
+            });
+               
+        // try{
+            
+            // axios .post( "http://localhost:8003/api/orders/invoice/", JSON.stringify(htmlreport), 
+            // { 
+            //     responseType: "blob" 
+            // }) 
+            // .then(response => 
+            //     { 
+            //         var url = window.URL.createObjectURL( new Blob([response.data], { type: "application/pdf" }) ),
+            //         anchor = document.createElement("a"); anchor.href = url; 
+            //         anchor.download = "invoice.pdf"; 
+            //         anchor.click(); 
+            //         setinvoiceLoading(false)
+            //         const Hide=document.getElementsByClassName("Hide")
+            //         for (var i=0;i<Hide.length;i++){
+            //             Hide[i].hidden=false
+            //         }
+            //     });
+        // }catch(error){
+        //     setinvoiceLoading(false)
+        // }
         
 
     }
@@ -179,7 +197,7 @@ function OrderScreen() {
                                             {order.orderItems.map((item, index) => (
                                                 <ListGroup.Item key={index}>
                                                     <Row> 
-                                                        <Col>
+                                                        <Col className="hideImages">
                                                             <Image src={`http://localhost:8003/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}}/>
                                                         </Col>
 

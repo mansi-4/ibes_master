@@ -13,6 +13,10 @@ import {
     USER_ACTIVATION_FAIL,
     USER_ACTIVATION_SUCCESS,
 
+    USER_REACTIVATION_REQUEST,
+    USER_REACTIVATION_FAIL,
+    USER_REACTIVATION_SUCCESS,
+    
     USER_VERIFY_REQUEST,
     USER_VERIFY_FAIL,
     USER_VERIFY_SUCCESS,
@@ -163,6 +167,32 @@ export const activateUser = (token) => async (dispatch) => {
         })
     }
 }
+export const reActivateUser = (user_id) => async (dispatch) => {
+    try {
+        dispatch({
+            type: USER_REACTIVATION_REQUEST
+        })
+        
+        const { data } = await axios.put(
+            'https://ibes.offlinetoonline.in/api/users/re_activate_user',
+            {"user_id":user_id}
+        )
+
+        dispatch({
+            type: USER_REACTIVATION_SUCCESS,
+            payload: data
+        })
+
+
+    } catch (error) {
+        dispatch({
+            type: USER_REACTIVATION_FAIL,
+            payload: error.response && error.response.data.detail
+                ? error.response.data.detail
+                : error.message,
+        })
+    }
+}
 
 
 export const verifyUser = (email) => async (dispatch) => {
@@ -199,7 +229,6 @@ export const getUserDetails = (id) => async (dispatch,getState) => {
         dispatch({
             type: USER_DETAILS_REQUEST
         })
-        
         const {
             userLogin:{userInfo},
         } = getState()
@@ -209,7 +238,6 @@ export const getUserDetails = (id) => async (dispatch,getState) => {
                 Authorization :userInfo.token
             }
         }
-        console.log(userInfo.token)
         const { data } = await axios.get(
             `http://localhost:8003/api/users/${id}`,
             config
@@ -229,6 +257,35 @@ export const getUserDetails = (id) => async (dispatch,getState) => {
         })
     }
 }
+
+
+export const getUserActivationDetails = (id) => async (dispatch,getState) => {
+    try {
+        dispatch({
+            type: USER_DETAILS_REQUEST
+        })
+        
+        const { data } = await axios.get(
+            `http://localhost:8003/api/users/${id}`,
+           
+        )
+
+        dispatch({
+            type: USER_DETAILS_SUCCESS,
+            payload: data
+        })
+
+    } catch (error) {
+        dispatch({
+            type: USER_DETAILS_FAIL,
+            payload: error.response && error.response.data.detail
+                ? error.response.data.detail
+                : error.message,
+        })
+    }
+}
+
+
 
 export const updateUserProfile = (user) => async (dispatch,getState) => {
     try {

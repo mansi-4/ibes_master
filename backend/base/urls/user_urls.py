@@ -8,6 +8,7 @@ urlpatterns = [
    path("login",views.loginUser,name="login-User"), 
    path("verify_user",views.verifyUser,name="verify-User"), 
    path("activate_user",views.activateUser,name="activate-User"),
+   path("re_activate_user",views.reActivateUser,name="re-activate-User"),
    path('profile_update/', views.updateUserProfile,name="user-profile-update"),
    path("password_update/",views.updateUserPassword,name="user-password-update"), 
    path("profile",views.userProfile,name="User-profile"),

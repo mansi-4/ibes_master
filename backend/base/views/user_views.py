@@ -40,7 +40,7 @@ def getUsers(request):
 def getUserById(request,pk):
     try:
         user = Users.objects.get(id=pk)
-        st={"user_id":user.id,"name":user.name,"email":user.email,"password":user.password,"isAdmin":user.is_superuser}
+        st={"user_id":user.id,"name":user.name,"email":user.email,"isAdmin":user.is_superuser,"isActive":user.status}
         return Response(st)
 
     except:
@@ -48,6 +48,7 @@ def getUserById(request,pk):
 
 @api_view(['GET'])
 def userProfile(request):
+    print("hi")
     if 'Authorization' in request.headers:
         token=request.headers['Authorization']
         if not token: 
@@ -61,7 +62,7 @@ def userProfile(request):
         except:
             raise AuthenticationFailed("Something went wrong")
         user = Users.objects.filter(id=payload['id']).first()
-        st={"user_id":user.id,"name":user.name,"email":user.email,"password":user.password,"isAdmin":user.is_superuser}
+        st={"user_id":user.id,"name":user.name,"email":user.email,"isAdmin":user.is_superuser}
         return Response(st)
     else:
         return Response("Authorization Token not provided")
@@ -185,7 +186,6 @@ def registerUser(request):
             }
 
         token = jwt.encode(payload, 'secret', algorithm='HS256')  
-        print(token)
         
         try:
             send_mail(
@@ -254,12 +254,10 @@ def activateUser(request):
     data=request.data
 
     token=data["token"]
-    print(token)
     if not token:
         raise AuthenticationFailed('Account Activation Failed!')
     try:
         payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-        print(payload)
     except jwt.ExpiredSignatureError:
         raise AuthenticationFailed('Link has Expired!')
     except jwt.InvalidSignatureError:
@@ -274,6 +272,86 @@ def activateUser(request):
     except:
         return Response("Account Activation Failed")
     
+    
+@api_view(["PUT"])
+def reActivateUser(request):
+    data=request.data
+    user = Users.objects.filter(id=data["user_id"]).first()
+    payload = {
+                'id': user.id,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15),
+                'iat': datetime.datetime.utcnow()
+            }
+
+    token = jwt.encode(payload, 'secret', algorithm='HS256')  
+    try:
+        subject='User Activation Link'
+        message=''
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [user.email]
+        html_message = f"""
+                <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Welcome to our website!</title>
+                        <style>
+                        body {{
+                            font-family: sans-serif;
+                            padding: 30px;
+                            text-align: center;
+                        }}
+                        .container {{
+                            max-width: 600px;
+                            margin: 0 auto;
+                            padding: 20px;
+                            background-color: #f8f8f8;
+                        }}
+                        h1 {{
+                            font-size: 36px;
+                            margin-bottom: 20px;
+                        }}
+                        p {{
+                            font-size: 18px;
+                            margin-bottom: 10px;
+                        }}
+                        a {{
+                            color: #007bff;
+                            text-decoration: none;
+                        }}
+                        a:hover {{
+                            text-decoration: underline;
+                        }}
+                        </style>
+                    </head>
+                    <body>
+                    <div class="container">
+                        <h1>Welcome back to our website!</h1>
+                        <p>Dear {user.name},</p>
+                        <p>We noticed that you had registered with OfflineToOnline but did not activate your account. To reactivate your account, please click on the link below:</p>
+                        <p><a href="https://ibes.offlinetoonline.in/#/user_activation/{token}">Reactivate your account</a></p>
+                        <p>Please note that this link is only valid for 15 minutes from the time you received this email. If you do not reactivate your account within this time, you will need to send a new reactivation request.</p>
+                        <p>As a registered user, you'll have access to exclusive features and benefits that will make your shopping experience with us even better. Some of the perks of being a registered user include:</p>
+                        <ul>
+                        <li>Fast and easy checkout</li>
+                        <li>Order tracking and history</li>
+                        <li>Special promotions and discounts</li>
+                        <li>Saved payment methods and addresses for faster shopping</li>
+                        </ul>
+                        <p>We're always adding new features and improvements to make your shopping experience with us the best it can be, so stay tuned for even more benefits in the future.</p>
+                        <p>If you have any questions about your account or our website, please don't hesitate to contact our customer support team. They're available 24/7 to help you with anything you need.</p>
+                        <p>Thank you for considering to reactivate your account with us. We're excited to have you back as a customer and we look forward to serving you soon!</p>
+                        <p>Sincerely,<br>The OfflineToOnline Team</p>
+                    </div>
+                    </body>
+                    </html>
+                    """
+            
+        send_mail(subject, message, from_email, recipient_list, html_message=html_message)
+        
+        
+        return Response("Email Verification Sent")
+    except:
+        return Response("Failed to send Email")
 
 @api_view(['PUT'])
 def updateUser(request,pk):
