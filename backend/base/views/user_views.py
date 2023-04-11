@@ -148,24 +148,59 @@ def loginUser(request):
     if not check_password(password, user.password):
         raise AuthenticationFailed('Incorrect password!')
 
-    payload = {
+    access_token = {
             'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=2),
             'iat': datetime.datetime.utcnow()
         }
-
-    token = jwt.encode(payload, 'secret', algorithm='HS256')  
+    access_token = jwt.encode(access_token, 'secret', algorithm='HS256')  
+    refresh_token = {
+            'id': user.id,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=7),
+            'iat': datetime.datetime.utcnow()
+        }
+    refresh_token = jwt.encode(refresh_token, 'secret', algorithm='HS256')
     response = Response()
-
     # response.set_cookie(key='jwt', value=token, httponly=True)
     response.data = {
         '_id':user.id,
         'email':user.email,
         'name':user.name,
         'isAdmin':user.is_superuser,
-        'token': token
+        'access_token': access_token,
+        'refresh_token': refresh_token
     }
     return response
+
+@api_view(['POST'])
+def refreshAccessToken(request):
+    if 'Authorization' in request.headers:
+        refresh_token = request.headers['Authorization']
+        print(refresh_token)
+        if not refresh_token: 
+            raise AuthenticationFailed('Unauthenticated!')
+        try:
+            refresh_payload = jwt.decode(refresh_token, 'refresh_secret', algorithms=['HS256'])
+            user_id = refresh_payload["id"]
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Refresh token has expired!')
+        except jwt.InvalidSignatureError:
+            raise AuthenticationFailed('Invalid refresh token')
+        except:
+            raise AuthenticationFailed('Invalid refresh token')
+
+        # Generate a new access token with a new expiration time
+        access_token = {
+            'id': user_id,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
+            'iat': datetime.datetime.utcnow()
+        }
+        access_token = jwt.encode(access_token, 'access_secret', algorithm='HS256')
+
+        return Response({'access_token': access_token})
+    else:
+        return Response({'message': 'Authorization token not provided'})
+
 
 @api_view(['POST'])
 def registerUser(request):

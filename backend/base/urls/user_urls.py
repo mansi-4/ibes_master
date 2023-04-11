@@ -15,5 +15,7 @@ urlpatterns = [
    path("update/<str:pk>/",views.updateUser,name="update-User"),
    path("delete/<str:pk>/",views.deleteUser,name="delete-User"),
    path("<str:pk>",views.getUserById,name="User-by-id"),
+   path("refresh_token",views.refreshAccessToken,name="refresh-access-token"),
+
    
 ]

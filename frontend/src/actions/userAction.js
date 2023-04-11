@@ -49,6 +49,11 @@ import {
     USER_UPDATE_FAIL,
     USER_UPDATE_SUCCESS,
     USER_UPDATE_RESET,
+
+    TOKEN_RENEW_REQUEST,
+    TOKEN_RENEW_FAIL,
+    TOKEN_RENEW_SUCCESS,
+
 } from '../constants/userConstants'
 import {ORDER_LIST_MY_RESET} from '../constants/orderConstants'
 import axios from 'axios'
@@ -365,43 +370,138 @@ export const updateUserPassword = (token,password) => async (dispatch,getState) 
     }
 }
 
+// export const listUsers = () => async (dispatch, getState) => {
+//     try {
+//         dispatch({
+//             type: USER_LIST_REQUEST
+//         })
+
+//         const {
+//             userLogin: { userInfo },
+//         } = getState()
+
+//         const config = {
+//             headers: {
+//                 Authorization: userInfo.token
+//             }
+//         }
+
+//         const { data } = await axios.get(
+//             `http://localhost:8003/api/users/`,
+//             config
+//         )
+//         dispatch({
+//             type: USER_LIST_SUCCESS,
+//             payload: data
+//         })
+//     } catch (error) {
+//         dispatch({
+//             type: USER_LIST_FAIL,
+//             payload: error.response && error.response.data.detail
+//                 ? error.response.data.detail
+//                 : error.message,
+//         })
+//     }
+// }
+
+
 export const listUsers = () => async (dispatch, getState) => {
     try {
-        dispatch({
-            type: USER_LIST_REQUEST
-        })
+            dispatch({
+                        type: USER_LIST_REQUEST
+                    })
+                    const {
+                        userLogin: { userInfo },
+                    } = getState()
+                    const config = {
+                        headers: {
+                            Authorization: userInfo.access_token
+                        }
+                    }
+                    const { data } = await axios.get(`http://localhost:8003/api/users/`,
+                        config
+                    )
+                    dispatch({
+                        type: USER_LIST_SUCCESS,
+                        payload: data
+                    })
+        } catch (error) {
+            if (error.response.status === 401) {
+            // Access token has expired, try to refresh it
+            try {
+                const newToken = await dispatch(refreshAccessToken());
+                // Retry the original request with the new access token
+                const {
+                    userLogin: { userInfo },
+                } = getState()
+                const config = {
+                    headers: {
+                        Authorization: userInfo.access_token
+                    }
+                }
+                const { data } = await axios.get(`http://localhost:8003/api/users/`,
+                    config
+                )
+                dispatch({
+                    type: USER_LIST_SUCCESS,
+                    payload: data
+                })
+            } catch (refreshError) {
+                dispatch({
+                    type: USER_LIST_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
+            }
+            } else {
+                dispatch({
+                        type: USER_LIST_FAIL,
+                        payload: error.response && error.response.data.detail
+                            ? error.response.data.detail
+                            : error.message,
+                    })
+    }
+  }
+};
 
+export const refreshAccessToken = () => async (dispatch, getState) => {
+    try{
+        dispatch({
+            type: TOKEN_RENEW_REQUEST
+        })
         const {
             userLogin: { userInfo },
         } = getState()
-
         const config = {
             headers: {
-                Authorization: userInfo.token
+                Authorization: userInfo.refresh_token
             }
         }
-
-        const { data } = await axios.get(
-            `http://localhost:8003/api/users/`,
+        const { data } = await axios.get(`http://localhost:8003/api/users/refresh_token`,
             config
         )
-
         dispatch({
-            type: USER_LIST_SUCCESS,
+            type: TOKEN_RENEW_SUCCESS,
             payload: data
         })
+        console.log(data)
+        console.log(data.access_token)
 
+        const userInfoObj=localStorage.getItem("userInfo")
+        const userInfoJson = JSON.parse(userInfoObj)
+        userInfoJson.access_token = data.access_token
+        localStorage.setItem("userInfo", JSON.stringify(userInfoJson))
 
-    } catch (error) {
-        dispatch({
-            type: USER_LIST_FAIL,
-            payload: error.response && error.response.data.detail
-                ? error.response.data.detail
-                : error.message,
-        })
-    }
-}
-
+    }catch (error) {
+                dispatch({
+                    type: TOKEN_RENEW_FAIL,
+                    payload: error.response && error.response.data.detail
+                        ? error.response.data.detail
+                        : error.message,
+                })
+            }
+  };
 
 export const deleteUser = (id) => async (dispatch, getState) => {
     try {

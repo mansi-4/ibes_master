@@ -26,7 +26,7 @@ function UserListScreen() {
         if (userInfo && userInfo.isAdmin) {
             dispatch(listUsers())
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }

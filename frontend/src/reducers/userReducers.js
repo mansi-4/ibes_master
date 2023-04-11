@@ -49,6 +49,10 @@ import {
     USER_UPDATE_SUCCESS,
     USER_UPDATE_RESET,
 
+    TOKEN_RENEW_REQUEST,
+    TOKEN_RENEW_FAIL,
+    TOKEN_RENEW_SUCCESS,
+
 } from '../constants/userConstants'
 
 export const userLoginReducer= (state={},action)=>{
@@ -307,3 +311,28 @@ export const userUpdateReducer = (state = { user: {} }, action) => {
             return state
     }
 }
+
+export const tokenRenewReducer= (state={},action)=>{
+    switch(action.type){
+        case TOKEN_RENEW_REQUEST:
+            return {
+                loading:true,
+            }
+        case TOKEN_RENEW_SUCCESS:
+            return {
+                loading:false,
+                // userInfo:action.payload
+            }
+        case TOKEN_RENEW_FAIL:
+            return {
+                loading:false,
+                error:action.payload
+            } 
+        case USER_LOGOUT:
+            return {}
+        default:
+            return state
+    }
+}
+
+
