@@ -6,6 +6,7 @@ urlpatterns = [
    path("",views.getUsers,name="all-Users"),
    path("register",views.registerUser,name="add-User"),
    path("login",views.loginUser,name="login-User"), 
+   path("refresh_token",views.refreshAccessToken,name="refresh-access-token"),
    path("verify_user",views.verifyUser,name="verify-User"), 
    path("activate_user",views.activateUser,name="activate-User"),
    path("re_activate_user",views.reActivateUser,name="re-activate-User"),
@@ -15,7 +16,6 @@ urlpatterns = [
    path("update/<str:pk>/",views.updateUser,name="update-User"),
    path("delete/<str:pk>/",views.deleteUser,name="delete-User"),
    path("<str:pk>",views.getUserById,name="User-by-id"),
-   path("refresh_token",views.refreshAccessToken,name="refresh-access-token"),
 
    
 ]

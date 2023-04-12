@@ -180,7 +180,7 @@ def refreshAccessToken(request):
         if not refresh_token: 
             raise AuthenticationFailed('Unauthenticated!')
         try:
-            refresh_payload = jwt.decode(refresh_token, 'refresh_secret', algorithms=['HS256'])
+            refresh_payload = jwt.decode(refresh_token, 'secret', algorithms=['HS256'])
             user_id = refresh_payload["id"]
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('Refresh token has expired!')
@@ -195,7 +195,7 @@ def refreshAccessToken(request):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
             'iat': datetime.datetime.utcnow()
         }
-        access_token = jwt.encode(access_token, 'access_secret', algorithm='HS256')
+        access_token = jwt.encode(access_token, 'secret', algorithm='HS256')
 
         return Response({'access_token': access_token})
     else:
