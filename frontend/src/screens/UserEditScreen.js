@@ -8,6 +8,7 @@ import FormContainer from '../components/FormContainer'
 import { getUserDetails, updateUser ,logout} from '../actions/userAction'
 import { USER_UPDATE_RESET } from '../constants/userConstants'
 import jwt_decode from "jwt-decode";
+import CryptoJS from 'crypto-js';
 
 function UserEditScreen() {
     let history=useNavigate()
@@ -29,10 +30,12 @@ function UserEditScreen() {
 
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
+
     useEffect(() => {
-        if (userInfo && userInfo.isAdmin) {
+        if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
@@ -107,7 +110,7 @@ function UserEditScreen() {
                                     label='Is Admin'
                                     checked={isAdmin}
                                     onChange={(e) => setIsAdmin(e.target.checked)}
-                                    required
+                                    
                                 >
                                 </Form.Check>
                             </Form.Group>

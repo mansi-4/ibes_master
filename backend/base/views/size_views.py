@@ -66,7 +66,7 @@ def createSize(request):
 def updateSize(request,pk):
     if 'Authorization' in request.headers:
         token=request.headers['Authorization']
-        print(token)
+        
         if not token:
             raise AuthenticationFailed('Unauthenticated!')
         try:

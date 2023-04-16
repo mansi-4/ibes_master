@@ -32,10 +32,11 @@ function PlaceOrderScreen() {
     if (!cart.paymentMethod) {
         history('/payment')
     }
+    const BASEURL='http://localhost:8003'
 
     useEffect(() => {
         if(userInfo){
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
@@ -129,7 +130,7 @@ function PlaceOrderScreen() {
                                         <ListGroup.Item key={index}>
                                             <Row>
                                                 <Col>
-                                                    <Image src= {`http://localhost:8003/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}} />
+                                                    <Image src= {`${BASEURL}/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}} />
                                                 </Col>
 
                                                 <Col >

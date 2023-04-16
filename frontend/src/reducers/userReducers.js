@@ -312,27 +312,5 @@ export const userUpdateReducer = (state = { user: {} }, action) => {
     }
 }
 
-export const tokenRenewReducer= (state={},action)=>{
-    switch(action.type){
-        case TOKEN_RENEW_REQUEST:
-            return {
-                loading:true,
-            }
-        case TOKEN_RENEW_SUCCESS:
-            return {
-                loading:false,
-                // userInfo:action.payload
-            }
-        case TOKEN_RENEW_FAIL:
-            return {
-                loading:false,
-                error:action.payload
-            } 
-        case USER_LOGOUT:
-            return {}
-        default:
-            return state
-    }
-}
 
 

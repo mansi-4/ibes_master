@@ -6,6 +6,7 @@ import Loader from "../components/Loader"
 import Message from "../components/Message"
 import FormContainer from "../components/FormContainer"
 import {verifyUser} from '../actions/userAction'
+import DOMPurify from 'dompurify';
 
 function VerifyScreen() {
     
@@ -43,7 +44,7 @@ function VerifyScreen() {
             type="email"
             placeholder="Enter email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e)=>setEmail(DOMPurify.sanitize(e.target.value))}
             required
             ></Form.Control>
         </Form.Group>

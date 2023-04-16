@@ -8,6 +8,7 @@ import CheckoutSteps from "../components/CheckoutSteps"
 import {saveShippingAddress} from "../actions/cartActions"
 import {logout} from "../actions/userAction"
 import jwt_decode from "jwt-decode";
+import DOMPurify from 'dompurify';
 
 function ShippingScreen() {
     let history = useNavigate()
@@ -48,7 +49,7 @@ function ShippingScreen() {
                         type='text'
                         placeholder='Enter address'
                         value={address ? address : ''}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={(e) => setAddress(DOMPurify.sanitize(e.target.value))}
                     >
                     </Form.Control>
                 </Form.Group>
@@ -60,7 +61,7 @@ function ShippingScreen() {
                         type='text'
                         placeholder='Enter city'
                         value={city ? city : ''}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={(e) => setCity(DOMPurify.sanitize(e.target.value))}
                     >
                     </Form.Control>
                 </Form.Group>
@@ -72,7 +73,7 @@ function ShippingScreen() {
                         type='text'
                         placeholder='Enter postal code'
                         value={postalCode ? postalCode : ''}
-                        onChange={(e) => setPostalCode(e.target.value)}
+                        onChange={(e) => setPostalCode(DOMPurify.sanitize(e.target.value))}
                     >
                     </Form.Control>
                 </Form.Group>
@@ -84,7 +85,7 @@ function ShippingScreen() {
                         type='text'
                         placeholder='Enter country'
                         value={country ? country : ''}
-                        onChange={(e) => setCountry(e.target.value)}
+                        onChange={(e) => setCountry(DOMPurify.sanitize(e.target.value))}
                     >
                     </Form.Control>
                 </Form.Group>

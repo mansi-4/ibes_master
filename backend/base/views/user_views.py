@@ -48,7 +48,6 @@ def getUserById(request,pk):
 
 @api_view(['GET'])
 def userProfile(request):
-    print("hi")
     if 'Authorization' in request.headers:
         token=request.headers['Authorization']
         if not token: 
@@ -85,7 +84,6 @@ def updateUserProfile(request):
         user = Users.objects.get(id=payload["id"])
         try:
             data = request.data
-            print(data)
             user.name=data["name"]
             user.email=data["email"]
 
@@ -93,7 +91,7 @@ def updateUserProfile(request):
                 user.password=make_password(data["password"])
             
             user.save()
-            st={"_id":user.id,"name":user.name,"email":user.email,"token":token,"isAdmin":user.is_superuser}
+            st={"_id":user.id,"name":user.name,"email":user.email}
             return Response(st)
         except:
             return Response("Profile updation failed")
@@ -104,7 +102,7 @@ def updateUserProfile(request):
 def updateUserPassword(request):
     if 'Authorization' in request.headers:
         token=request.headers['Authorization']
-        print(token)
+        
         if not token:
             raise AuthenticationFailed('Unauthenticated!')
 
@@ -150,18 +148,17 @@ def loginUser(request):
 
     access_token = {
             'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=2),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10),
             'iat': datetime.datetime.utcnow()
         }
     access_token = jwt.encode(access_token, 'secret', algorithm='HS256')  
     refresh_token = {
             'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=7),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),
             'iat': datetime.datetime.utcnow()
         }
     refresh_token = jwt.encode(refresh_token, 'secret', algorithm='HS256')
     response = Response()
-    # response.set_cookie(key='jwt', value=token, httponly=True)
     response.data = {
         '_id':user.id,
         'email':user.email,
@@ -170,13 +167,16 @@ def loginUser(request):
         'access_token': access_token,
         'refresh_token': refresh_token
     }
+    
+    # response.set_cookie(key='access_token', value=access_token, httponly=False,samesite="None")
+    # response.set_cookie(key='refresh_token', value=refresh_token, httponly=False,samesite="None")
+
     return response
 
 @api_view(['POST'])
 def refreshAccessToken(request):
     if 'Authorization' in request.headers:
         refresh_token = request.headers['Authorization']
-        print(refresh_token)
         if not refresh_token: 
             raise AuthenticationFailed('Unauthenticated!')
         try:

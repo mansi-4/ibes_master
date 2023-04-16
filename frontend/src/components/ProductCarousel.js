@@ -11,7 +11,8 @@ function ProductCarousel() {
 
     const productTopRated = useSelector(state => state.productTopRated)
     const { error, loading, products } = productTopRated
-
+    const BASEURL='http://localhost:8003'
+ 
     useEffect(() => {
         dispatch(listTopProducts())
     }, [dispatch])
@@ -24,7 +25,7 @@ function ProductCarousel() {
                     {products.map(product => (
                         <Carousel.Item key={product.product_id}>
                             <Link to={`/product/${product.product_id}`}>
-                                <Image src={`http://localhost:8003/${product.images[0]}`} alt={product.name} fluid />
+                                <Image src={`${BASEURL}/${product.images[0]}`} alt={product.name} fluid />
                                 <Carousel.Caption className='carousel.caption'>
                                     <h4>{product.name} (&#8377;{Math.min(...product.variations.map(variation => variation.price))})</h4>
                                 </Carousel.Caption>

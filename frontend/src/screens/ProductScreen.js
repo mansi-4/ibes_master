@@ -42,6 +42,7 @@ function ProductScreen() {
         error: errorProductReview,
         success: successProductReview,
     } = productReviewCreate
+    const BASEURL='http://localhost:8003'
 
     
     useEffect(()=>{
@@ -67,7 +68,6 @@ function ProductScreen() {
 
     function addToCartHandler() {
         // ${qty}
-        console.log(qty)
         history(`/cart/${variation.product_variation_id}?qty=1`)
     }
 
@@ -113,15 +113,15 @@ function ProductScreen() {
                 :
                 (
                     <div>
-                    <Row>
+                    <Row> 
                         <Col md={5}>
                             <div>
-                            <img src={`http://localhost:8003/${images[0]}`} style={{ width: '100%',height:'100%'}} id="ProductImg"/>
+                            <img src={`${BASEURL}/${images[0]}`} style={{ width: '100%',height:'100%'}} id="ProductImg"/>
 
                                 <div className='small-img-row'>
                                     {images.map((image,index)=>(
                                         <div className='small-img-col'>
-                                            <img src={`http://localhost:8003/${image}`} onClick={handleClick} style={{ width: '100%'}}  className="small-img" />
+                                            <img src={`${BASEURL}/${image}`} onClick={handleClick} style={{ width: '100%'}}  className="small-img" />
                                         </div>
                                     ))}
                                 </div>

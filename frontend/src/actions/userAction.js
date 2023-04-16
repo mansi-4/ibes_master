@@ -59,6 +59,8 @@ import {ORDER_LIST_MY_RESET} from '../constants/orderConstants'
 import axios from 'axios'
 import { CART_CLEAR_ITEMS } from '../constants/cartConstants'
 import jwt_decode from 'jwt-decode'
+import CryptoJS from 'crypto-js';
+const BASEURL = 'http://localhost:8003';
 
 export const login = (email,password) => async (dispatch) => {
     try{
@@ -71,19 +73,35 @@ export const login = (email,password) => async (dispatch) => {
             }
         }
         const {data} = await axios.post(
-            "http://localhost:8003/api/users/login",
+            `${BASEURL}/api/users/login`,
             {'email':email,'password':password},
             config
             )
+
+        const _id=data._id
+        const isAdmin=data.isAdmin
+        
+        const secretKey = '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4';
+        const encrypted_id = CryptoJS.AES.encrypt(String(_id), secretKey).toString();
+        const encrypted_isAdmin = CryptoJS.AES.encrypt(String(isAdmin), secretKey).toString();
+        const userInfo = {
+            _id:encrypted_id,
+            basic:encrypted_isAdmin,
+            name:data.name,
+            email:data.email,
+            access_token:data.access_token,
+            refresh_token:data.refresh_token
+        }
         dispatch({
             type:USER_LOGIN_SUCCESS,
-            payload:data
+            payload:userInfo
         })
         
-        localStorage.setItem("userInfo",JSON.stringify(data))
+        localStorage.setItem("userInfo",JSON.stringify(userInfo))
+        // localStorage.setItem("userInfo",JSON.stringify(data))
+
 
     }catch(error){
-        console.log(error)
         dispatch({
             type:USER_LOGIN_FAIL,
             payload:error.response && error.response.data.detail 
@@ -122,7 +140,7 @@ export const register = (name, email, password) => async (dispatch) => {
         
 
         const { data } = await axios.post(
-            'http://localhost:8003/api/users/register',
+            `${BASEURL}/api/users/register`,
             { 'name': name, 'email': email, 'password': password },
         )
 
@@ -155,7 +173,7 @@ export const activateUser = (token) => async (dispatch) => {
         })
         
         const { data } = await axios.put(
-            'http://localhost:8003/api/users/activate_user',
+            `${BASEURL}/api/users/activate_user`,
             {"token":token}
         )
 
@@ -181,7 +199,7 @@ export const reActivateUser = (user_id) => async (dispatch) => {
         })
         
         const { data } = await axios.put(
-            'https://ibes.offlinetoonline.in/api/users/re_activate_user',
+            `${BASEURL}/api/users/re_activate_user`,
             {"user_id":user_id}
         )
 
@@ -211,7 +229,7 @@ export const verifyUser = (email) => async (dispatch) => {
         
 
         const { data } = await axios.post(
-            'http://localhost:8003/api/users/verify_user',
+            `${BASEURL}/api/users/verify_user`,
             { 'email': email},
         )
 
@@ -229,7 +247,7 @@ export const verifyUser = (email) => async (dispatch) => {
                 : error.message,
         })
     }
-}
+} 
 
 export const getUserDetails = (id) => async (dispatch,getState) => {
     try {
@@ -239,21 +257,79 @@ export const getUserDetails = (id) => async (dispatch,getState) => {
         const {
             userLogin:{userInfo},
         } = getState()
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                        Authorization: userInfo.refresh_token,
+                    },
+                };
+                    const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                    );
+    
+                    // update the access token in localStorage and userInfo object
+                    const userInfoObj = localStorage.getItem('userInfo');
+                    const userInfoJson = JSON.parse(userInfoObj);
+                    userInfoJson.access_token = refreshData.access_token;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJson._id,
+                        name: userInfoJson.name,
+                        email: userInfoJson.email,
+                        basic: userInfoJson.basic,
+                        access_token: userInfoJson.access_token,
+                        refresh_token: userInfoJson.refresh_token,
+                    },
+                    });
+                    // make the actual api call with the new access token
+                    const config = {
+                        headers: {
+                        Authorization: refreshData.access_token,
+                        },
+                    };
+                    const { data } = await axios.get(
+                        `${BASEURL}/api/users/${id}`,
+                        config
+                    )
+            
+                    dispatch({
+                        type: USER_DETAILS_SUCCESS,
+                        payload: data
+                    })
 
-        const config = {
-            headers: {
-                Authorization :userInfo.token
+            }catch(refreshError){
+                dispatch({
+                    type: USER_DETAILS_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization :userInfo.access_token
+                }
+            }
+            const { data } = await axios.get(
+                `${BASEURL}/api/users/${id}`,
+                config
+            )
+    
+            dispatch({
+                type: USER_DETAILS_SUCCESS,
+                payload: data
+            })
         }
-        const { data } = await axios.get(
-            `http://localhost:8003/api/users/${id}`,
-            config
-        )
-
-        dispatch({
-            type: USER_DETAILS_SUCCESS,
-            payload: data
-        })
+        
 
     } catch (error) {
         dispatch({
@@ -273,7 +349,7 @@ export const getUserActivationDetails = (id) => async (dispatch,getState) => {
         })
         
         const { data } = await axios.get(
-            `http://localhost:8003/api/users/${id}`,
+            `${BASEURL}/api/users/${id}`,
            
         )
 
@@ -303,30 +379,117 @@ export const updateUserProfile = (user) => async (dispatch,getState) => {
         const {
             userLogin:{userInfo}, 
         } = getState()
-
-        const config = {
-            headers: {
-                Authorization :userInfo.token
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                        Authorization: userInfo.refresh_token,
+                    },
+                };
+                    const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                    );
+    
+                    // update the access token in localStorage and userInfo object
+                    const userInfoObj = localStorage.getItem('userInfo');
+                    const userInfoJson = JSON.parse(userInfoObj);
+                    userInfoJson.access_token = refreshData.access_token;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJson._id,
+                        name: userInfoJson.name,
+                        email: userInfoJson.email,
+                        basic: userInfoJson.basic,
+                        access_token: userInfoJson.access_token,
+                        refresh_token: userInfoJson.refresh_token,
+                    },
+                    });
+                    // make the actual api call with the new access token
+                    const config = {
+                        headers: {
+                        Authorization: refreshData.access_token,
+                        },
+                    };
+                    const { data } = await axios.put(
+                        `${BASEURL}/api/users/profile_update/`,
+                        user,
+                        config
+                    )
+            
+                    dispatch({
+                        type: USER_UPDATE_PROFILE_SUCCESS,
+                        payload: data
+                    })
+                    // update the name,email in localStorage and userInfo object
+                    const userInfoObjj = localStorage.getItem('userInfo');
+                    const userInfoJsonn = JSON.parse(userInfoObjj);
+                    userInfoJsonn.name = data.name;
+                    userInfoJsonn.email = data.email;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJsonn));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJsonn._id,
+                        name: userInfoJsonn.name,
+                        email: userInfoJsonn.email,
+                        basic: userInfoJsonn.basic,
+                        access_token: userInfoJsonn.access_token,
+                        refresh_token: userInfoJsonn.refresh_token,
+                    },
+                    });
+                    
+            }catch(refreshError){
+                dispatch({
+                    type: USER_UPDATE_PROFILE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization :userInfo.access_token
+                }
+            }
+           
+            const { data } = await axios.put(
+                `${BASEURL}/api/users/profile_update/`,
+                user,
+                config
+            )
+    
+            dispatch({
+                type: USER_UPDATE_PROFILE_SUCCESS,
+                payload: data
+            })
+    
+           // update the name,email in localStorage and userInfo object
+           const userInfoObjj = localStorage.getItem('userInfo');
+           const userInfoJsonn = JSON.parse(userInfoObjj);
+           userInfoJsonn.name = data.name;
+           userInfoJsonn.email = data.email;
+           localStorage.setItem('userInfo', JSON.stringify(userInfoJsonn));
+           dispatch({
+           type: USER_LOGIN_SUCCESS,
+           payload: {
+               _id: userInfoJsonn._id,
+               name: userInfoJsonn.name,
+               email: userInfoJsonn.email,
+               basic: userInfoJsonn.basic,
+               access_token: userInfoJsonn.access_token,
+               refresh_token: userInfoJsonn.refresh_token,
+           },
+           });
         }
-       
-        const { data } = await axios.put(
-            `http://localhost:8003/api/users/profile_update/`,
-            user,
-            config
-        )
-
-        dispatch({
-            type: USER_UPDATE_PROFILE_SUCCESS,
-            payload: data
-        })
-
-        dispatch({
-            type: USER_LOGIN_SUCCESS,
-            payload: data
-        })
-
-        localStorage.setItem('userInfo', JSON.stringify(data))
+        
 
     } catch (error) {
         dispatch({
@@ -350,7 +513,7 @@ export const updateUserPassword = (token,password) => async (dispatch,getState) 
         }
       
         const { data } = await axios.put(
-            `http://localhost:8003/api/users/password_update/`,
+            `${BASEURL}/api/users/password_update/`,
             {'password':password},
             config
             
@@ -372,101 +535,6 @@ export const updateUserPassword = (token,password) => async (dispatch,getState) 
     }
 }
 
-// export const listUsers = () => async (dispatch, getState) => {
-//     try {
-//         dispatch({
-//             type: USER_LIST_REQUEST
-//         })
-
-//         const {
-//             userLogin: { userInfo },
-//         } = getState()
-
-//         const config = {
-//             headers: {
-//                 Authorization: userInfo.token
-//             }
-//         }
-
-//         const { data } = await axios.get(
-//             `http://localhost:8003/api/users/`,
-//             config
-//         )
-//         dispatch({
-//             type: USER_LIST_SUCCESS,
-//             payload: data
-//         })
-//     } catch (error) {
-//         dispatch({
-//             type: USER_LIST_FAIL,
-//             payload: error.response && error.response.data.detail
-//                 ? error.response.data.detail
-//                 : error.message,
-//         })
-//     }
-// }
-
-
-// export const listUsers = () => async (dispatch, getState) => {
-//     try {
-//             dispatch({
-//                         type: USER_LIST_REQUEST
-//                     })
-//                     const {
-//                         userLogin: { userInfo },
-//                     } = getState()
-//                     const config = {
-//                         headers: {
-//                             Authorization: userInfo.access_token
-//                         }
-//                     }
-//                     const { data } = await axios.get(`http://localhost:8003/api/users/`,
-//                         config
-//                     )
-//                     dispatch({
-//                         type: USER_LIST_SUCCESS,
-//                         payload: data
-//                     })
-//         } catch (error) {
-//             if (error.response.status === 401) {
-//             // Access token has expired, try to refresh it
-//             try {
-//                 const newToken = await dispatch(refreshAccessToken());
-//                 // Retry the original request with the new access token
-//                 const {
-//                     userLogin: { userInfo },
-//                 } = getState()
-//                 const config = {
-//                     headers: {
-//                         Authorization: userInfo.access_token
-//                     }
-//                 }
-//                 const { data } = await axios.get(`http://localhost:8003/api/users/`,
-//                     config
-//                 )
-//                 dispatch({
-//                     type: USER_LIST_SUCCESS,
-//                     payload: data
-//                 })
-//             } catch (refreshError) {
-//                 dispatch({
-//                     type: USER_LIST_FAIL,
-//                     payload: refreshError.response && refreshError.response.data.detail
-//                         ? refreshError.response.data.detail
-//                         : refreshError.message,
-//                 })
-//             }
-//             } else {
-//                 dispatch({
-//                         type: USER_LIST_FAIL,
-//                         payload: error.response && error.response.data.detail
-//                             ? error.response.data.detail
-//                             : error.message,
-//                     })
-//     }
-//   }
-// };
-
 export const listUsers = () => async (dispatch, getState) => {
     try {
       dispatch({
@@ -481,6 +549,7 @@ export const listUsers = () => async (dispatch, getState) => {
       const decodedToken = jwt_decode(userInfo.access_token);
       const currentTime = Date.now() / 1000;
       
+      
       if (decodedToken.exp < currentTime) {
         // access token has expired, try to refresh it
         try {
@@ -490,7 +559,7 @@ export const listUsers = () => async (dispatch, getState) => {
             },
           };
           const { data: refreshData } = await axios.post(
-            `http://localhost:8003/api/users/refresh_token`,
+            `${BASEURL}/api/users/refresh_token`,
             null,
             refreshConfig
           );
@@ -506,7 +575,7 @@ export const listUsers = () => async (dispatch, getState) => {
               _id: userInfoJson._id,
               name: userInfoJson.name,
               email: userInfoJson.email,
-              isAdmin: userInfoJson.isAdmin,
+              basic: userInfoJson.basic,
               access_token: userInfoJson.access_token,
               refresh_token: userInfoJson.refresh_token,
             },
@@ -519,13 +588,14 @@ export const listUsers = () => async (dispatch, getState) => {
             },
           };
           const { data } = await axios.get(
-            `http://localhost:8003/api/users/`,
+            `${BASEURL}/api/users/`,
             config
           );
           dispatch({
             type: USER_LIST_SUCCESS,
             payload: data,
           });
+            
         } catch (refreshError) {
           dispatch({
             type: USER_LIST_FAIL,
@@ -534,8 +604,10 @@ export const listUsers = () => async (dispatch, getState) => {
                 ? refreshError.response.data.detail
                 : refreshError.message,
           });
+          return;
         }
-      } else {
+      } 
+      else {
         // access token is still valid, make the api call to list users
         const config = {
           headers: {
@@ -543,13 +615,13 @@ export const listUsers = () => async (dispatch, getState) => {
           },
         };
         const { data } = await axios.get(
-          `http://localhost:8003/api/users/`,
+          `${BASEURL}/api/users/`,
           config
         );
         dispatch({
-          type: USER_LIST_SUCCESS,
-          payload: data,
-        });
+            type: USER_LIST_SUCCESS,
+            payload: data,
+          });
       }
     } catch (error) {
       dispatch({
@@ -562,44 +634,6 @@ export const listUsers = () => async (dispatch, getState) => {
     }
   };
 
-export const refreshAccessToken = () => async (dispatch, getState) => {
-    try{
-        dispatch({
-            type: TOKEN_RENEW_REQUEST
-        })
-        const {
-            userLogin: { userInfo },
-        } = getState()
-        const config = {
-            headers: {
-                Authorization: userInfo.refresh_token
-            }
-        }
-        const { data } = await axios.get(`http://localhost:8003/api/users/refresh_token`,
-            config
-        )
-        dispatch({
-            type: TOKEN_RENEW_SUCCESS,
-            payload: data
-        })
-        console.log(data)
-        console.log(data.access_token)
-
-        const userInfoObj=localStorage.getItem("userInfo")
-        const userInfoJson = JSON.parse(userInfoObj)
-        userInfoJson.access_token = data.access_token
-        localStorage.setItem("userInfo", JSON.stringify(userInfoJson))
-
-    }catch (error) {
-                dispatch({
-                    type: TOKEN_RENEW_FAIL,
-                    payload: error.response && error.response.data.detail
-                        ? error.response.data.detail
-                        : error.message,
-                })
-            }
-  };
-
 export const deleteUser = (id) => async (dispatch, getState) => {
     try {
         dispatch({
@@ -609,23 +643,84 @@ export const deleteUser = (id) => async (dispatch, getState) => {
         const {
             userLogin: { userInfo },
         } = getState()
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
 
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                      Authorization: userInfo.refresh_token,
+                    },
+                  };
+                  const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                  );
+          
+                  // update the access token in localStorage and userInfo object
+                  const userInfoObj = localStorage.getItem('userInfo');
+                  const userInfoJson = JSON.parse(userInfoObj);
+                  userInfoJson.access_token = refreshData.access_token;
+                  localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                  dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                      _id: userInfoJson._id,
+                      name: userInfoJson.name,
+                      email: userInfoJson.email,
+                      basic: userInfoJson.basic,
+                      access_token: userInfoJson.access_token,
+                      refresh_token: userInfoJson.refresh_token,
+                    },
+                  });
+          
+                  // make the actual api call to list users with the new access token
+                  const config = {
+                    headers: {
+                      Authorization: refreshData.access_token,
+                    },
+                  };
+                  const { data } = await axios.delete(
+                    `${BASEURL}/api/users/delete/${id}/`,
+                    config
+                )
+        
+                dispatch({
+                    type: USER_DELETE_SUCCESS,
+                    payload: data
+                })
+
+            }catch(refreshError){
+                dispatch({
+                    type: USER_DELETE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+    
+            const { data } = await axios.delete(
+                `${BASEURL}/api/users/delete/${id}/`,
+                config
+            )
+    
+            dispatch({
+                type: USER_DELETE_SUCCESS,
+                payload: data
+            })
+    
         }
-
-        const { data } = await axios.delete(
-            `http://localhost:8003/api/users/delete/${id}/`,
-            config
-        )
-
-        dispatch({
-            type: USER_DELETE_SUCCESS,
-            payload: data
-        })
-
+        
 
     } catch (error) {
         dispatch({
@@ -647,27 +742,93 @@ export const updateUser = (user) => async (dispatch, getState) => {
         const {
             userLogin: { userInfo },
         } = getState()
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
 
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                      Authorization: userInfo.refresh_token,
+                    },
+                  };
+                  const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                  );
+          
+                  // update the access token in localStorage and userInfo object
+                  const userInfoObj = localStorage.getItem('userInfo');
+                  const userInfoJson = JSON.parse(userInfoObj);
+                  userInfoJson.access_token = refreshData.access_token;
+                  localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                  dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                      _id: userInfoJson._id,
+                      name: userInfoJson.name,
+                      email: userInfoJson.email,
+                      basic: userInfoJson.basic,
+                      access_token: userInfoJson.access_token,
+                      refresh_token: userInfoJson.refresh_token,
+                    },
+                  });
+          
+                  // make the actual api call to list users with the new access token
+                  const config = {
+                    headers: {
+                      Authorization: refreshData.access_token,
+                    },
+                  };
+                  const { data } = await axios.put(
+                    `${BASEURL}/api/users/update/${user._id}/`,
+                    user,
+                    config
+                    )
+        
+                    dispatch({
+                        type: USER_UPDATE_SUCCESS,
+                    })
+            
+                    dispatch({
+                        type: USER_DETAILS_SUCCESS,
+                        payload: data
+                    })
+
+            }catch(refreshError){
+                dispatch({
+                    type: USER_UPDATE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+    
+            const { data } = await axios.put(
+                `${BASEURL}/api/users/update/${user._id}/`,
+                user,
+                config
+            )
+    
+            dispatch({
+                type: USER_UPDATE_SUCCESS,
+            })
+    
+            dispatch({
+                type: USER_DETAILS_SUCCESS,
+                payload: data
+            })
         }
-
-        const { data } = await axios.put(
-            `http://localhost:8003/api/users/update/${user._id}/`,
-            user,
-            config
-        )
-
-        dispatch({
-            type: USER_UPDATE_SUCCESS,
-        })
-
-        dispatch({
-            type: USER_DETAILS_SUCCESS,
-            payload: data
-        })
+        
 
 
     } catch (error) {

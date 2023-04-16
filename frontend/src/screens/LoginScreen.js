@@ -5,6 +5,7 @@ import {useDispatch,useSelector} from 'react-redux'
 import Loader from "../components/Loader"
 import Message from "../components/Message"
 import FormContainer from "../components/FormContainer"
+import DOMPurify from 'dompurify';
 
 import {login} from '../actions/userAction'
 function LoginScreen() {
@@ -46,7 +47,7 @@ function LoginScreen() {
             type="email"
             placeholder="Enter email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e)=>setEmail(DOMPurify.sanitize(e.target.value))}
             required
             ></Form.Control>
         </Form.Group>
@@ -56,10 +57,10 @@ function LoginScreen() {
             type="password"
             placeholder="Enter password"
             value={password}
-            onChange={(e)=>setPassword(e.target.value)}
+            onChange={(e)=>setPassword(DOMPurify.sanitize(e.target.value))}
             required
             ></Form.Control>
-        </Form.Group>
+        </Form.Group> 
         <Row className="float-end">
         <Col>
             {/* <Link to={redirect ? `/verify?redirect=${redirect}` : '/verify'}>Forgot Password ?</Link> */}

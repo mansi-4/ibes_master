@@ -36,7 +36,6 @@ function PasswordResetScreen() {
           setMessage("Passwords do not match")
       }
       else{
-        console.log(token)
           dispatch(updateUserPassword(token,password))
           setMessage("")
       }

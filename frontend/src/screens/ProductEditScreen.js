@@ -13,6 +13,7 @@ import { listColors } from '../actions/colorActions'
 import { listSizes } from '../actions/sizeActions'
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
+import CryptoJS from 'crypto-js'
 
 function ProductEditScreen() {
     let history=useNavigate();
@@ -27,7 +28,7 @@ function ProductEditScreen() {
     const [uploading, setUploading] = useState(false)
     const [validationError,setValidationError]=useState(false)
 
-    const dispatch = useDispatch()
+    const dispatch = useDispatch() 
     const categoryList = useSelector(state => state.categoryList)
     const { loading:loadingCategories, error:errorCategories, categories } = categoryList
 
@@ -60,12 +61,13 @@ function ProductEditScreen() {
 
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
 
     useEffect(() => {
         dispatch({ type: PRODUCT_VARIATION_CREATE_RESET })
-        if (userInfo && userInfo.isAdmin) {
+        if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }

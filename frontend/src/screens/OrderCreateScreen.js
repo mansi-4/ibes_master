@@ -13,6 +13,7 @@ import { createCustomerOrder } from "../actions/orderActions";
 import Loader from "../components/Loader"
 import Message from "../components/Message"
 import { CUSTOMER_ORDER_CREATE_RESET } from "../constants/orderConstants";
+import CryptoJS from 'crypto-js';
 
 function OrderCreateScreen(){
     const dispatch=useDispatch()
@@ -39,6 +40,8 @@ function OrderCreateScreen(){
 
     const customerOrderCreate = useSelector(state => state.customerOrderCreate)
     const { customer_order, error:errorOrderCreate, success:successOrderCreate } = customerOrderCreate
+
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
 
     const [keyword,setKeyword]=useState("")
     const [customer_name,setCustomerName]=useState("")
@@ -98,9 +101,9 @@ function OrderCreateScreen(){
         setPrice(variation.price)
     }
     useEffect(() => {
-        if (userInfo && userInfo.isAdmin) {
+        if (userInfo &&  CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
@@ -155,7 +158,6 @@ function OrderCreateScreen(){
                 totalPrice:totalPrice,
                 orderItems:order_items
             }
-            // console.log(obj)
             dispatch(createCustomerOrder(obj))
         }
     }

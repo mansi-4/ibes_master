@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {useSelector,useDispatch} from 'react-redux'
 import {Container,Navbar,Nav, NavDropdown,Image} from 'react-bootstrap'
 import {LinkContainer} from 'react-router-bootstrap'
 import {  } from 'react-router-dom'
 import {logout} from '../actions/userAction'
 import SearchBox from './SearchBox'
+import CryptoJS from 'crypto-js';
+
 function Header() {
   const dispatch=useDispatch()
   const userLogin = useSelector(state => state.userLogin)
@@ -12,6 +14,10 @@ function Header() {
   const logoutHandler = () => {
     dispatch(logout())
   }
+  const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
+ 
+  
+  
   return (
   <header>
   <Navbar bg="dark" variant="dark" expand="lg" collapseOnSelect>
@@ -50,7 +56,7 @@ function Header() {
             <Nav.Link ><i className='fas fa-user'></i>Login</Nav.Link>
           </LinkContainer>  
           )}
-          {userInfo && userInfo.isAdmin && (
+          {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) && (
             <NavDropdown title='Admin' id='adminmenue'>
                 <LinkContainer to='/admin/userlist'>
                     <NavDropdown.Item>Users</NavDropdown.Item>

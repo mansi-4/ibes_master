@@ -10,6 +10,7 @@ import {logout} from "../actions/userAction"
 import jwt_decode from "jwt-decode";
 import axios from 'axios'
 import jsPDF from "jspdf"
+import CryptoJS from 'crypto-js';
 import html2canvas from 'html2canvas';
 
 function OrderScreen() {
@@ -29,16 +30,20 @@ function OrderScreen() {
 
     const [invoiceLoading,setinvoiceLoading]=useState(false)
     const [createdAt,setCreatedAt]=useState("")
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
+
     const dispatch=useDispatch();
     if(!loading && !error){
         order.itemsPrice = order.orderItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
     }
 
     const [shipping_status,setShippingStatus]=useState("")
+    const BASEURL='http://localhost:8003'
+
     useEffect(() => {
         if (userInfo) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
@@ -96,7 +101,7 @@ function OrderScreen() {
                
         // try{
             
-            // axios .post( "http://localhost:8003/api/orders/invoice/", JSON.stringify(htmlreport), 
+            // axios .post( "${BASEURL}/api/orders/invoice/", JSON.stringify(htmlreport), 
             // { 
             //     responseType: "blob" 
             // }) 
@@ -144,7 +149,7 @@ function OrderScreen() {
             <div id="htmlpdfreport">
                 <h1 className='text-center'>
                     OfflineToOnline</h1>
-                    {/* <Image src={`http://localhost:8003/static/multimedia/shopping.png`}  width="30px"/>                     */}
+                    {/* <Image src={`${BASEURL}/static/multimedia/shopping.png`}  width="30px"/>                     */}
                 <h1>Order: {order._id}</h1>
             <Row>
                     <Col md={8}>
@@ -198,7 +203,7 @@ function OrderScreen() {
                                                 <ListGroup.Item key={index}>
                                                     <Row> 
                                                         <Col className="hideImages">
-                                                            <Image src={`http://localhost:8003/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}}/>
+                                                            <Image src={`${BASEURL}/${item.image}`} alt={item.name} fluid rounded style={{width:"100px"}}/>
                                                         </Col>
 
                                                         <Col>
@@ -269,7 +274,7 @@ function OrderScreen() {
                                 
                                 {/* paid buttons will come here */}
                                 {loadingPay && <Loader />}
-                                {userInfo && userInfo.isAdmin && order.paymentMethod==="Cash On Delivery" && !order.isPaid &&(
+                                {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) && order.paymentMethod==="Cash On Delivery" && !order.isPaid &&(
                                     <ListGroup.Item className="text-center Hide" > 
                                         <Button
                                             type='button'
@@ -283,7 +288,7 @@ function OrderScreen() {
                                 
                             </Card>
                             <br></br>
-                            {userInfo && userInfo.isAdmin && !order.isDelivered && (<Card>
+                            {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) && !order.isDelivered && (<Card>
                                 <ListGroup variant='flush' className="Hide">
                                     <ListGroup.Item>
                                         <h2>Shipping Status</h2>

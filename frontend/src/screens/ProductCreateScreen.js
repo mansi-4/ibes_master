@@ -16,6 +16,7 @@ import { PRODUCT_CREATE_RESET } from '../constants/productConstants'
 import { createProduct } from '../actions/productActions'
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
+import CryptoJS from 'crypto-js'
 function ProductCreateScreen() {
     let history=useNavigate()
     const dispatch = useDispatch()
@@ -34,14 +35,15 @@ function ProductCreateScreen() {
 
     const productCreate = useSelector(state => state.productCreate)
     const { product: createdProduct, loading: loadingCreate,error:errorCreate, success: successCreate } = productCreate
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
     
     useEffect(() => {
-        if (userInfo && userInfo.isAdmin) {
+        if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
-            }
+            } 
             else{
                 if(successCreate){
                     dispatch({ type: PRODUCT_CREATE_RESET })

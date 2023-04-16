@@ -3,7 +3,7 @@ import thunk from 'redux-thunk'
 import {composeWithDevTools} from 'redux-devtools-extension'
 import {productListReducer,productTopRatedReducer,productDetailsReducer,productDistinctDetailsReducer,productSizesByColorReducer,productVariationBySizeReducer,productVariationDetailsReducer,productVariationDetailReducer,productDeleteReducer,productVariationDeleteReducer,productCreateReducer,productVariationCreateReducer,productUpdateReducer,productVariationUpdateReducer,productReviewCreateReducer} from './reducers/productReducers'
 import {cartReducer} from './reducers/cartReducers'
-import {userLoginReducer,userRegisterReducer,userVerifyReducer,userActivationReducer,userReActivationReducer,userDetailsReducer,userActivationDetailsReducer,userUpdateProfileReducer,userUpdatePasswordReducer,userListReducer,userDeleteReducer,userUpdateReducer, tokenRenewReducer} from './reducers/userReducers'
+import {userLoginReducer,userRegisterReducer,userVerifyReducer,userActivationReducer,userReActivationReducer,userDetailsReducer,userActivationDetailsReducer,userUpdateProfileReducer,userUpdatePasswordReducer,userListReducer,userDeleteReducer,userUpdateReducer} from './reducers/userReducers'
 import {colorListReducer,colorDetailsReducer,colorCreateReducer,colorDeleteReducer,colorUpdateReducer} from "./reducers/colorReducers"
 import {sizeListReducer,sizeDetailsReducer,sizeCreateReducer,sizeDeleteReducer,sizeUpdateReducer} from "./reducers/sizeReducers"
 import {categoryListReducer,categoryDetailsReducer,categoryCreateReducer,categoryDeleteReducer,categoryUpdateReducer} from "./reducers/categoryReducers"
@@ -39,7 +39,6 @@ const reducer=combineReducers({
     userList:userListReducer,
     userDelete:userDeleteReducer,
     userUpdate:userUpdateReducer,
-    tokenRenew:tokenRenewReducer,
 
     colorList:colorListReducer,
     colorCreate:colorCreateReducer,

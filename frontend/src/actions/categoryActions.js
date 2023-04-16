@@ -24,10 +24,12 @@ import {
 
     
 } from '../constants/categoryConstants'
+const BASEURL = 'http://localhost:8003';
+
 export const listCategories = () => async (dispatch) => {
     try{
         dispatch({type:CATEGORY_LIST_REQUEST})
-        const {data} = await axios.get(`http://localhost:8003/api/categories/`)
+        const {data} = await axios.get(`${BASEURL}/api/categories/`)
         dispatch({
             type:CATEGORY_LIST_SUCCESS,
             payload:data
@@ -46,7 +48,7 @@ export const listCategories = () => async (dispatch) => {
 export const listCategoryDetails = (id) =>async (dispatch) => {
     try{
         dispatch({type:CATEGORY_DETAILS_REQUEST})
-        const {data} = await axios.get(`http://localhost:8003/api/categories/${id}`)
+        const {data} = await axios.get(`${BASEURL}/api/categories/${id}`)
         dispatch({
             type:CATEGORY_DETAILS_SUCCESS,
             payload:data
@@ -79,7 +81,7 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
         }
 
         const { data } = await axios.delete(
-            `http://localhost:8003/api/categories/delete/${id}/`,
+            `${BASEURL}/api/categories/delete/${id}/`,
             config
         )
 
@@ -116,7 +118,7 @@ export const createCategory = () => async (dispatch, getState) => {
         }
 
         const { data } = await axios.post(
-            `http://localhost:8003/api/categories/create/`,
+            `${BASEURL}/api/categories/create/`,
             {},
             config
         )
@@ -153,7 +155,7 @@ export const updateCategory = (category) => async (dispatch, getState) => {
         }
 
         const { data } = await axios.put(
-            `http://localhost:8003/api/categories/update/${category.id}/`,
+            `${BASEURL}/api/categories/update/${category.id}/`,
             category,
             config
         )

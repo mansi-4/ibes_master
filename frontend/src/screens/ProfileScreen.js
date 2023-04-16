@@ -11,6 +11,7 @@ import {getUserDetails,updateUserProfile} from '../actions/userAction'
 import { listMyOrders } from '../actions/orderActions'
 import {logout} from "../actions/userAction"
 import jwt_decode from "jwt-decode";
+import CryptoJS from 'crypto-js';
 
 function ProfileScreen() {
     let history = useNavigate()
@@ -35,19 +36,23 @@ function ProfileScreen() {
 
     const orderListMy = useSelector(state => state.orderListMy)
     const { loading: loadingOrders, error: errorOrders, orders } = orderListMy
-
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
+    
     useEffect(()=>{
         if (userInfo) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
             else{
-                if(!user || !user.name || success || userInfo._id !== user.user_id){
+                if(!user || !user.name || success || CryptoJS.AES.decrypt(userInfo._id, secretKey).toString(CryptoJS.enc.Utf8) !== String(user.user_id) ){
                     dispatch({type:USER_UPDATE_PROFILE_RESET})
                     dispatch(getUserDetails("profile"))
                     dispatch(listMyOrders())
+                    setPassword("")
+                    setConfirmPassword("")
+
                 }
                 else{
                     setName(user.name)

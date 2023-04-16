@@ -24,10 +24,12 @@ import {
 
     
 } from '../constants/sizeConstants'
+const BASEURL = '${BASEURL}';
+
 export const listSizes = () => async (dispatch) => {
     try{
         dispatch({type:SIZE_LIST_REQUEST})
-        const {data} = await axios.get(`http://localhost:8003/api/sizes/`)
+        const {data} = await axios.get(`${BASEURL}/api/sizes/`)
         dispatch({
             type:SIZE_LIST_SUCCESS,
             payload:data
@@ -46,7 +48,7 @@ export const listSizes = () => async (dispatch) => {
 export const listSizeDetails = (id) =>async (dispatch) => {
     try{
         dispatch({type:SIZE_DETAILS_REQUEST})
-        const {data} = await axios.get(`http://localhost:8003/api/sizes/${id}`)
+        const {data} = await axios.get(`${BASEURL}/api/sizes/${id}`)
         dispatch({
             type:SIZE_DETAILS_SUCCESS,
             payload:data
@@ -79,7 +81,7 @@ export const deleteSize = (id) => async (dispatch, getState) => {
         }
 
         const { data } = await axios.delete(
-            `http://localhost:8003/api/sizes/delete/${id}/`,
+            `${BASEURL}/api/sizes/delete/${id}/`,
             config
         )
 
@@ -116,7 +118,7 @@ export const createSize = () => async (dispatch, getState) => {
         }
 
         const { data } = await axios.post(
-            `http://localhost:8003/api/sizes/create/`,
+            `${BASEURL}/api/sizes/create/`,
             {},
             config
         )
@@ -153,7 +155,7 @@ export const updateSize = (size) => async (dispatch, getState) => {
         }
 
         const { data } = await axios.put(
-            `http://localhost:8003/api/sizes/update/${size.id}/`,
+            `${BASEURL}/api/sizes/update/${size.id}/`,
             size,
             config
         )

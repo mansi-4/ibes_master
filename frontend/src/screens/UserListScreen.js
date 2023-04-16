@@ -7,7 +7,7 @@ import Loader from '../components/Loader'
 import Message from '../components/Message'
 import { listUsers,deleteUser,logout } from '../actions/userAction'
 import jwt_decode from "jwt-decode";
-
+import CryptoJS from 'crypto-js';
 function UserListScreen() {
     let history=useNavigate()
     const dispatch = useDispatch()
@@ -20,17 +20,17 @@ function UserListScreen() {
 
     const userDelete = useSelector(state => state.userDelete)
     const { success: successDelete } = userDelete
-
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
 
     useEffect(() => {
-        if (userInfo && userInfo.isAdmin) {
+        if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
             dispatch(listUsers())
             // to check if token is expired or not 
             var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
-        } else {
+        } else { 
             history('/login')
         }
 
