@@ -10,6 +10,8 @@ import { listSizes,deleteSize,createSize } from '../actions/sizeActions'
 import {SIZE_CREATE_RESET} from "../constants/sizeConstants"
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
+import CryptoJS from 'crypto-js';
+
 function SizeListScreen() {
     let history=useNavigate()
     const dispatch = useDispatch()
@@ -26,12 +28,14 @@ function SizeListScreen() {
     const sizeCreate = useSelector(state => state.sizeCreate)
     const { loading: loadingCreate, error: errorCreate, success: successCreate, size: createdSize } = sizeCreate
 
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
 
     useEffect(() => {
         dispatch({ type: SIZE_CREATE_RESET })
-        if (userInfo && userInfo.isAdmin) {
+        // if (userInfo && userInfo.isAdmin) {
+        if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }else{

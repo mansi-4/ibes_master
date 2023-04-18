@@ -10,15 +10,14 @@ import { listColorDetails, updateColor } from '../actions/colorActions'
 import { COLOR_UPDATE_RESET } from '../constants/colorConstants'
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
+import CryptoJS from 'crypto-js';
 
 function ColorEditScreen() {
     let history=useNavigate()
     const { productId } = useParams();
     const { id } = useParams();
     
-
     const [color_name, setColor] = useState('')
-   
 
     const dispatch = useDispatch()
 
@@ -31,10 +30,13 @@ function ColorEditScreen() {
     const userLogin = useSelector(state => state.userLogin)
     const { userInfo } = userLogin
 
+    const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
+
     useEffect(() => {
-        if (userInfo && userInfo.isAdmin) {
+        if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
+
             // to check if token is expired or not 
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }

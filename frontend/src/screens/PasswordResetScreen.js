@@ -15,10 +15,6 @@ function PasswordResetScreen() {
     const [confirm_password,setConfirmPassword] = useState("")
     const [message,setMessage] = useState("")
 
-
-    
-    
-    
     const userUpdatePassword=useSelector(state => state.userUpdatePassword)
     const {error,loading,success} = userUpdatePassword
 

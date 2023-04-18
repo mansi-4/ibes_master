@@ -1,4 +1,7 @@
 import axios from 'axios'
+import jwt_decode from 'jwt-decode'
+import { USER_LOGIN_SUCCESS } from '../constants/userConstants';
+
 import {
     CATEGORY_LIST_REQUEST, 
     CATEGORY_LIST_SUCCESS,
@@ -73,23 +76,77 @@ export const deleteCategory = (id) => async (dispatch, getState) => {
         const {
             userLogin: { userInfo },
         } = getState()
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{const refreshConfig = {
+                headers: {
+                    Authorization: userInfo.refresh_token,
+                },
+            };
+                const { data: refreshData } = await axios.post(
+                `${BASEURL}/api/users/refresh_token`,
+                null,
+                refreshConfig
+                );
 
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+                // update the access token in localStorage and userInfo object
+                const userInfoObj = localStorage.getItem('userInfo');
+                const userInfoJson = JSON.parse(userInfoObj);
+                userInfoJson.access_token = refreshData.access_token;
+                localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                dispatch({
+                type: USER_LOGIN_SUCCESS,
+                payload: {
+                    _id: userInfoJson._id,
+                    name: userInfoJson.name,
+                    email: userInfoJson.email,
+                    basic: userInfoJson.basic,
+                    access_token: userInfoJson.access_token,
+                    refresh_token: userInfoJson.refresh_token,
+                },
+                });
+                // make the actual api call with the new access token
+                const config = {
+                    headers: {
+                        Authorization: refreshData.access_token
+                    }
+                }
+        
+                const { data } = await axios.delete(
+                    `${BASEURL}/api/categories/delete/${id}/`,
+                    config
+                )
+        
+                dispatch({
+                    type: CATEGORY_DELETE_SUCCESS,
+                })
+            }catch (error) {
+                dispatch({
+                    type: CATEGORY_DELETE_FAIL,
+                    payload: error.response && error.response.data.detail
+                        ? error.response.data.detail
+                        : error.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+    
+            const { data } = await axios.delete(
+                `${BASEURL}/api/categories/delete/${id}/`,
+                config
+            )
+    
+            dispatch({
+                type: CATEGORY_DELETE_SUCCESS,
+            })
         }
-
-        const { data } = await axios.delete(
-            `${BASEURL}/api/categories/delete/${id}/`,
-            config
-        )
-
-        dispatch({
-            type: CATEGORY_DELETE_SUCCESS,
-        })
-
-
+        
     } catch (error) {
         dispatch({
             type: CATEGORY_DELETE_FAIL,
@@ -110,24 +167,79 @@ export const createCategory = () => async (dispatch, getState) => {
         const {
             userLogin: { userInfo },
         } = getState()
-
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                        Authorization: userInfo.refresh_token,
+                    },
+                };
+                    const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                    );
+    
+                    // update the access token in localStorage and userInfo object
+                    const userInfoObj = localStorage.getItem('userInfo');
+                    const userInfoJson = JSON.parse(userInfoObj);
+                    userInfoJson.access_token = refreshData.access_token;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJson._id,
+                        name: userInfoJson.name,
+                        email: userInfoJson.email,
+                        basic: userInfoJson.basic,
+                        access_token: userInfoJson.access_token,
+                        refresh_token: userInfoJson.refresh_token,
+                    },
+                    });
+                    // make the actual api call with the new access token
+                const config = {
+                    headers: {
+                        Authorization: refreshData.access_token
+                    }
+                }
+                const { data } = await axios.post(
+                    `${BASEURL}/api/categories/create/`,
+                    {},
+                    config
+                )
+                dispatch({
+                    type: CATEGORY_CREATE_SUCCESS,
+                    payload: data,
+                })
+        
+            }catch (refreshError) {
+                dispatch({
+                    type: CATEGORY_CREATE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+            const { data } = await axios.post(
+                `${BASEURL}/api/categories/create/`,
+                {},
+                config
+            )
+            dispatch({
+                type: CATEGORY_CREATE_SUCCESS,
+                payload: data,
+            })
+    
         }
-
-        const { data } = await axios.post(
-            `${BASEURL}/api/categories/create/`,
-            {},
-            config
-        )
-        dispatch({
-            type: CATEGORY_CREATE_SUCCESS,
-            payload: data,
-        })
-
-
     } catch (error) {
         dispatch({
             type: CATEGORY_CREATE_FAIL,

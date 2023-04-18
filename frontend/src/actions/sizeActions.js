@@ -1,4 +1,7 @@
 import axios from 'axios'
+import jwt_decode from 'jwt-decode'
+import { USER_LOGIN_SUCCESS } from '../constants/userConstants';
+
 import {
     SIZE_LIST_REQUEST, 
     SIZE_LIST_SUCCESS,
@@ -24,7 +27,7 @@ import {
 
     
 } from '../constants/sizeConstants'
-const BASEURL = '${BASEURL}';
+const BASEURL = 'http://localhost:8003';
 
 export const listSizes = () => async (dispatch) => {
     try{
@@ -74,22 +77,74 @@ export const deleteSize = (id) => async (dispatch, getState) => {
             userLogin: { userInfo },
         } = getState()
 
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                        Authorization: userInfo.refresh_token,
+                    },
+                };
+                    const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                    );
+    
+                    // update the access token in localStorage and userInfo object
+                    const userInfoObj = localStorage.getItem('userInfo');
+                    const userInfoJson = JSON.parse(userInfoObj);
+                    userInfoJson.access_token = refreshData.access_token;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJson._id,
+                        name: userInfoJson.name,
+                        email: userInfoJson.email,
+                        basic: userInfoJson.basic,
+                        access_token: userInfoJson.access_token,
+                        refresh_token: userInfoJson.refresh_token,
+                    },
+                    });
+                    // make the actual api call with the new access token
+                    const config = {
+                        headers: {
+                        Authorization: refreshData.access_token,
+                        },
+                    };
+                    const { data } = await axios.delete(
+                        `${BASEURL}/api/sizes/delete/${id}/`,
+                        config
+                    )
+                    dispatch({
+                        type: SIZE_DELETE_SUCCESS,
+                    })
+            }catch (refreshError) {
+                dispatch({
+                    type: SIZE_DELETE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
         }
-
-        const { data } = await axios.delete(
-            `${BASEURL}/api/sizes/delete/${id}/`,
-            config
-        )
-
-        dispatch({
-            type: SIZE_DELETE_SUCCESS,
-        })
-
-
+        else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+            const { data } = await axios.delete(
+                `${BASEURL}/api/sizes/delete/${id}/`,
+                config
+            )
+            dispatch({
+                type: SIZE_DELETE_SUCCESS,
+            })
+        }
     } catch (error) {
         dispatch({
             type: SIZE_DELETE_FAIL,
@@ -110,24 +165,79 @@ export const createSize = () => async (dispatch, getState) => {
         const {
             userLogin: { userInfo },
         } = getState()
-
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                        Authorization: userInfo.refresh_token,
+                    },
+                };
+                    const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                    );
+    
+                    // update the access token in localStorage and userInfo object
+                    const userInfoObj = localStorage.getItem('userInfo');
+                    const userInfoJson = JSON.parse(userInfoObj);
+                    userInfoJson.access_token = refreshData.access_token;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJson._id,
+                        name: userInfoJson.name,
+                        email: userInfoJson.email,
+                        basic: userInfoJson.basic,
+                        access_token: userInfoJson.access_token,
+                        refresh_token: userInfoJson.refresh_token,
+                    },
+                    });
+                    // make the actual api call with the new access token
+                    const config = {
+                        headers: {
+                            Authorization: refreshData.access_token
+                        }
+                    }
+            
+                    const { data } = await axios.post(
+                        `${BASEURL}/api/sizes/create/`,
+                        {},
+                        config
+                    )
+                    dispatch({
+                        type: SIZE_CREATE_SUCCESS,
+                        payload: data,
+                    })
+            }catch(refreshError) {
+                dispatch({
+                    type: SIZE_CREATE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+    
+            const { data } = await axios.post(
+                `${BASEURL}/api/sizes/create/`,
+                {},
+                config
+            )
+            dispatch({
+                type: SIZE_CREATE_SUCCESS,
+                payload: data,
+            })
         }
-
-        const { data } = await axios.post(
-            `${BASEURL}/api/sizes/create/`,
-            {},
-            config
-        )
-        dispatch({
-            type: SIZE_CREATE_SUCCESS,
-            payload: data,
-        })
-
-
     } catch (error) {
         dispatch({
             type: SIZE_CREATE_FAIL,
@@ -147,30 +257,84 @@ export const updateSize = (size) => async (dispatch, getState) => {
         const {
             userLogin: { userInfo },
         } = getState()
-
-        const config = {
-            headers: {
-                Authorization: userInfo.token
+        // decode the access token to check if it has expired
+        const decodedToken = jwt_decode(userInfo.access_token);
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp < currentTime) {
+            try{
+                const refreshConfig = {
+                    headers: {
+                        Authorization: userInfo.refresh_token,
+                    },
+                };
+                    const { data: refreshData } = await axios.post(
+                    `${BASEURL}/api/users/refresh_token`,
+                    null,
+                    refreshConfig
+                    );
+                    // update the access token in localStorage and userInfo object
+                    const userInfoObj = localStorage.getItem('userInfo');
+                    const userInfoJson = JSON.parse(userInfoObj);
+                    userInfoJson.access_token = refreshData.access_token;
+                    localStorage.setItem('userInfo', JSON.stringify(userInfoJson));
+                    dispatch({
+                    type: USER_LOGIN_SUCCESS,
+                    payload: {
+                        _id: userInfoJson._id,
+                        name: userInfoJson.name,
+                        email: userInfoJson.email,
+                        basic: userInfoJson.basic,
+                        access_token: userInfoJson.access_token,
+                        refresh_token: userInfoJson.refresh_token,
+                    },
+                    });
+                    // make the actual api call with the new access token
+                const config = {
+                    headers: {
+                        Authorization: refreshData.access_token
+                    }
+                }
+                const { data } = await axios.put(
+                    `${BASEURL}/api/sizes/update/${size.id}/`,
+                    size,
+                    config
+                )
+                dispatch({
+                    type: SIZE_UPDATE_SUCCESS,
+                    payload: data,
+                })
+                dispatch({
+                    type: SIZE_DETAILS_SUCCESS,
+                    payload: data
+                })
+            }catch (refreshError) {
+                dispatch({
+                    type: SIZE_UPDATE_FAIL,
+                    payload: refreshError.response && refreshError.response.data.detail
+                        ? refreshError.response.data.detail
+                        : refreshError.message,
+                })
             }
+        }else{
+            const config = {
+                headers: {
+                    Authorization: userInfo.access_token
+                }
+            }
+            const { data } = await axios.put(
+                `${BASEURL}/api/sizes/update/${size.id}/`,
+                size,
+                config
+            )
+            dispatch({
+                type: SIZE_UPDATE_SUCCESS,
+                payload: data,
+            })
+            dispatch({
+                type: SIZE_DETAILS_SUCCESS,
+                payload: data
+            })
         }
-
-        const { data } = await axios.put(
-            `${BASEURL}/api/sizes/update/${size.id}/`,
-            size,
-            config
-        )
-        dispatch({
-            type: SIZE_UPDATE_SUCCESS,
-            payload: data,
-        })
-
-
-        dispatch({
-            type: SIZE_DETAILS_SUCCESS,
-            payload: data
-        })
-
-
     } catch (error) {
         dispatch({
             type: SIZE_UPDATE_FAIL,

@@ -23,7 +23,7 @@ function ShippingScreen() {
     const { userInfo } = userLogin
     useEffect(() => {
         if(userInfo){
-            var decodedHeader=jwt_decode(userInfo.token)
+            var decodedHeader=jwt_decode(userInfo.refresh_token)
             if(decodedHeader.exp*1000 < Date.now()){
                 dispatch(logout())
             }
