@@ -15,8 +15,6 @@ function Header() {
     dispatch(logout())
   }
   const secretKey = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
- 
-  
   
   return (
   <header>
@@ -56,7 +54,7 @@ function Header() {
             <Nav.Link ><i className='fas fa-user'></i>Login</Nav.Link>
           </LinkContainer>  
           )}
-          {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) && (
+          {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) !== "false" ?(
             <NavDropdown title='Admin' id='adminmenue'>
                 <LinkContainer to='/admin/userlist'>
                     <NavDropdown.Item>Users</NavDropdown.Item>
@@ -79,7 +77,7 @@ function Header() {
                 </LinkContainer>
 
             </NavDropdown>
-          )}
+          ):""}
           
           </Nav>
           

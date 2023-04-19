@@ -80,7 +80,6 @@ export const login = (email,password) => async (dispatch) => {
 
         const _id=data._id
         const isAdmin=data.isAdmin
-        
         const secretKey = '603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4';
         const encrypted_id = CryptoJS.AES.encrypt(String(_id), secretKey).toString();
         const encrypted_isAdmin = CryptoJS.AES.encrypt(String(isAdmin), secretKey).toString();

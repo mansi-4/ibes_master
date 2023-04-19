@@ -236,7 +236,7 @@ function ProductEditScreen() {
                         : (
                             <Form onSubmit={submitHandler}>
 
-                            <Form.Group controlId='name'>
+                            <Form.Group>
                                 <Form.Label>Name</Form.Label>
                                 <Form.Control
                                     required
@@ -248,7 +248,7 @@ function ProductEditScreen() {
                                 </Form.Control>
                             </Form.Group>
 
-                            <Form.Group controlId='image'>
+                            <Form.Group>
                                 <Form.Label>Images</Form.Label>
                                 <Form.Control
                                     
@@ -271,7 +271,7 @@ function ProductEditScreen() {
                             </Form.Group>
 
 
-                            <Form.Group controlId='brand'>
+                            <Form.Group >
                                 <Form.Label>Brand</Form.Label>
                                 <Form.Control
                                     required
@@ -285,7 +285,7 @@ function ProductEditScreen() {
  
                             
 
-                            <Form.Group controlId='category'>
+                            <Form.Group >
                                 <Form.Label>Category</Form.Label>
                                 <Form.Select  value={category_id} onChange={(e)=>setCategoryId(e.target.value)} required>
                                     <option>Select categories</option>
@@ -295,7 +295,7 @@ function ProductEditScreen() {
                                 </Form.Select>
                             </Form.Group>
 
-                            <Form.Group controlId='description'>
+                            <Form.Group >
                                 <Form.Label>Description</Form.Label>
                                 <Form.Control
                                     required

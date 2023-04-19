@@ -6,7 +6,7 @@ import Loader from "../components/Loader"
 import Message from "../components/Message"
 import FormContainer from "../components/FormContainer"
 import DOMPurify from 'dompurify';
-
+ 
 import {login} from '../actions/userAction'
 function LoginScreen() {
     let history = useNavigate()
@@ -41,7 +41,7 @@ function LoginScreen() {
       {error && <Message variant="danger">{error}</Message>}
       {loading && <Loader/>}
       <Form onSubmit={submitHandler}>
-        <Form.Group controlId="email">
+        <Form.Group >
             <Form.Label>Email Address</Form.Label>
             <Form.Control
             type="email"
@@ -51,7 +51,7 @@ function LoginScreen() {
             required
             ></Form.Control>
         </Form.Group>
-        <Form.Group controlId="password">
+        <Form.Group>
             <Form.Label>Password</Form.Label>
             <Form.Control
             type="password"

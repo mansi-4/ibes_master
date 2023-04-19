@@ -42,7 +42,7 @@ function ShippingScreen() {
             <h1>Shipping</h1>
             <Form onSubmit={submitHandler}>
 
-                <Form.Group controlId='address'>
+                <Form.Group>
                     <Form.Label>Address</Form.Label>
                     <Form.Control
                         required
@@ -54,7 +54,7 @@ function ShippingScreen() {
                     </Form.Control>
                 </Form.Group>
 
-                <Form.Group controlId='city'>
+                <Form.Group>
                     <Form.Label>City</Form.Label>
                     <Form.Control
                         required
@@ -66,7 +66,7 @@ function ShippingScreen() {
                     </Form.Control>
                 </Form.Group>
 
-                <Form.Group controlId='postalCode'>
+                <Form.Group>
                     <Form.Label>Postal Code</Form.Label>
                     <Form.Control
                         required
@@ -78,7 +78,7 @@ function ShippingScreen() {
                     </Form.Control>
                 </Form.Group>
 
-                <Form.Group controlId='country'>
+                <Form.Group>
                     <Form.Label>Country</Form.Label>
                     <Form.Control
                         required

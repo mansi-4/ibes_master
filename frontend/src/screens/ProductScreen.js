@@ -7,6 +7,7 @@ import {PRODUCT_CREATE_REVIEW_RESET,PRODUCT_SIZE_BY_COLOR_RESET} from '../consta
 import Loader from "../components/Loader"
 import Message from "../components/Message"
 import Rating from '../components/Rating'
+import DOMPurify from 'dompurify'
 
 
 function ProductScreen() {
@@ -256,7 +257,7 @@ function ProductScreen() {
 
                                             {userInfo ? (
                                                 <Form onSubmit={submitHandler}>
-                                                    <Form.Group controlId='rating'>
+                                                    <Form.Group >
                                                         <Form.Label>Rating</Form.Label>
                                                         <Form.Control
                                                             as='select'
@@ -273,13 +274,13 @@ function ProductScreen() {
                                                         </Form.Control>
                                                     </Form.Group>
 
-                                                    <Form.Group controlId='comment'>
+                                                    <Form.Group>
                                                         <Form.Label>Review</Form.Label>
                                                         <Form.Control
                                                             as='textarea'
                                                             row='5'
                                                             value={comment}
-                                                            onChange={(e) => setComment(e.target.value)}
+                                                            onChange={(e) => setComment(DOMPurify.sanitize(e.target.value))}
                                                             required
                                                         ></Form.Control>
                                                     </Form.Group>

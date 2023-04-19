@@ -20,7 +20,6 @@ def getProducts(request):
     if category_id != "0":
         products=Product.objects.filter(name__icontains=query,category=category_id,status=0).prefetch_related('review_set').prefetch_related('productvariations_set').select_related('category').select_related('user')
     else:
-        print("else")
         products=Product.objects.filter(name__icontains=query,status=0).prefetch_related('review_set').prefetch_related('productvariations_set').select_related('category').select_related('user').all()
     
     serialized_products=[]

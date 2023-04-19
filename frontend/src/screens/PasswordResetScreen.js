@@ -5,7 +5,7 @@ import {useDispatch,useSelector} from 'react-redux'
 import Loader from "../components/Loader"
 import Message from "../components/Message"
 import FormContainer from "../components/FormContainer"
-
+import DOMPurify from 'dompurify'
 import {updateUserPassword} from '../actions/userAction'
 function PasswordResetScreen() {
     const { token } = useParams();
@@ -44,23 +44,23 @@ function PasswordResetScreen() {
       {error && <Message variant="danger">{error}</Message>}
       {loading && <Loader/>}
       <Form onSubmit={submitHandler}>
-        <Form.Group controlId="npassword">
+        <Form.Group >
             <Form.Label>New Password</Form.Label>
             <Form.Control
             type="password"
             placeholder="Enter new password"
             value={password}
-            onChange={(e)=>setPassword(e.target.value)}
+            onChange={(e)=>setPassword(DOMPurify.sanitize(e.target.value))}
             required
             ></Form.Control>
         </Form.Group>
-        <Form.Group controlId="cpassword">
+        <Form.Group >
             <Form.Label>Confirm Password</Form.Label>
             <Form.Control
             type="password"
             placeholder="Enter confirm password"
             value={confirm_password}
-            onChange={(e)=>setConfirmPassword(e.target.value)}
+            onChange={(e)=>setConfirmPassword(DOMPurify.sanitize(e.target.value))}
             required
             ></Form.Control>
         </Form.Group>

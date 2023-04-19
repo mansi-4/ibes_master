@@ -58,7 +58,7 @@ function RegisterScreen() {
         {success && <Message variant='info'>{success}</Message>}
         <Form onSubmit={submitHandler}>
 
-            <Form.Group controlId='name'>
+            <Form.Group>
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                     required
@@ -71,7 +71,7 @@ function RegisterScreen() {
                 </Form.Control>
             </Form.Group>
 
-            <Form.Group controlId='email'>
+            <Form.Group>
                 <Form.Label>Email Address</Form.Label>
                 <Form.Control
                     required
@@ -84,7 +84,7 @@ function RegisterScreen() {
                 </Form.Control>
             </Form.Group>
 
-            <Form.Group controlId='password'>
+            <Form.Group>
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                     
@@ -97,7 +97,7 @@ function RegisterScreen() {
                 </Form.Control>
             </Form.Group>
 
-            <Form.Group controlId='passwordConfirm'>
+            <Form.Group>
                 <Form.Label>Confirm Password</Form.Label>
                 <Form.Control
                     required

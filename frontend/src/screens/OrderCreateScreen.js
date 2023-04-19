@@ -187,7 +187,7 @@ function OrderCreateScreen(){
                     <Form onSubmit={submitHandler}>
                     <Row>
                         <Col md={6}>
-                            <Form.Group controlId='customer_name'>
+                            <Form.Group>
                                 <Form.Label>Customer Name</Form.Label>
                                 <Form.Control
                                     required
@@ -201,7 +201,7 @@ function OrderCreateScreen(){
                             </Form.Group>
                         </Col>
                         <Col md={6}>
-                            <Form.Group controlId='phone_no'>
+                            <Form.Group >
                                 <Form.Label>Phone No</Form.Label>
                                 <Form.Control
 
@@ -218,7 +218,7 @@ function OrderCreateScreen(){
                     </Row>
                     <Row>
                         <Col md={6}>
-                            <Form.Group controlId='address'>
+                            <Form.Group >
                                 <Form.Label>Address</Form.Label>
                                 <Form.Control
                                     required
@@ -232,7 +232,7 @@ function OrderCreateScreen(){
                             </Form.Group>
                         </Col>
                         <Col md={2}>
-                            <Form.Group controlId='city'>
+                            <Form.Group>
                                 <Form.Label>City</Form.Label>
                                 <Form.Control
 
@@ -248,7 +248,7 @@ function OrderCreateScreen(){
                         </Col>
                         
                         <Col md={2}>
-                            <Form.Group controlId='postal_code'>
+                            <Form.Group>
                                 <Form.Label>Postal Code</Form.Label>
                                 <Form.Control
 
@@ -264,7 +264,7 @@ function OrderCreateScreen(){
                         </Col>
                         
                         <Col md={2}>
-                            <Form.Group controlId='country'>
+                            <Form.Group>
                                 <Form.Label>Country</Form.Label>
                                 <Form.Control
 

@@ -9,6 +9,7 @@ import { getUserDetails, updateUser ,logout} from '../actions/userAction'
 import { USER_UPDATE_RESET } from '../constants/userConstants'
 import jwt_decode from "jwt-decode";
 import CryptoJS from 'crypto-js';
+import DOMPurify from 'dompurify'
 
 function UserEditScreen() {
     let history=useNavigate()
@@ -78,31 +79,31 @@ function UserEditScreen() {
                     : (
                         <Form onSubmit={submitHandler}>
 
-                            <Form.Group controlId='name'>
+                            <Form.Group>
                                 <Form.Label>Name</Form.Label>
                                 <Form.Control
                                     required
                                     type='name'
                                     placeholder='Enter name'
                                     value={name}
-                                    onChange={(e) => setName(e.target.value)}
+                                    onChange={(e) => setName(DOMPurify.sanitize(e.target.value))}
                                 >
                                 </Form.Control>
                             </Form.Group>
 
-                            <Form.Group controlId='email'>
+                            <Form.Group>
                                 <Form.Label>Email Address</Form.Label>
                                 <Form.Control
                                     type='email'
                                     placeholder='Enter Email'
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => setEmail(DOMPurify.sanitize(e.target.value))}
                                     required
                                 >
                                 </Form.Control>
                             </Form.Group>
 
-                            <Form.Group controlId='isadmin' className="mt-3">
+                            <Form.Group className="mt-3">
                                 <Form.Check
                                     type='checkbox'
                                     label='Is Admin'

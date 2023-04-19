@@ -8,7 +8,7 @@ import CheckoutSteps from '../components/CheckoutSteps'
 import {savePaymentMethod} from '../actions/cartActions'
 import {logout} from "../actions/userAction"
 import jwt_decode from "jwt-decode";
-
+import DOMPurify from 'dompurify'
 function PaymentScreen() {
     let history = useNavigate()
     const cart = useSelector(state => state.cart)
@@ -55,7 +55,7 @@ function PaymentScreen() {
                             name='paymentMethod'
                             value="Cash On Delivery"
                             // checked
-                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            onChange={(e) => setPaymentMethod(DOMPurify.sanitize(e.target.value))}
                         >
                         </Form.Check>
                     </Col>
@@ -68,7 +68,7 @@ function PaymentScreen() {
                             value="RazorPay"
 
                             // checked
-                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            onChange={(e) => setPaymentMethod(DOMPurify.sanitize(e.target.value))}
                         >
                         </Form.Check>
                     </Col>

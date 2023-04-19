@@ -11,7 +11,7 @@ import { COLOR_UPDATE_RESET } from '../constants/colorConstants'
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
 import CryptoJS from 'crypto-js';
-
+import DOMPurify from 'dompurify'
 function ColorEditScreen() {
     let history=useNavigate()
     const { productId } = useParams();
@@ -84,14 +84,14 @@ function ColorEditScreen() {
                     : (
                         <Form onSubmit={submitHandler}>
 
-                        <Form.Group controlId='name'>
+                        <Form.Group>
                             <Form.Label>Color Name</Form.Label>
                             <Form.Control
 
                                 type='name'
                                 placeholder='Enter name'
                                 value={color_name}
-                                onChange={(e) => setColor(e.target.value)}
+                                onChange={(e) => setColor(DOMPurify.sanitize(e.target.value))}
                                 required
                             >
                             </Form.Control>

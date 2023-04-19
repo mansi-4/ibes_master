@@ -11,6 +11,7 @@ import { CATEGORY_UPDATE_RESET } from '../constants/categoryConstants'
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
 import CryptoJS from 'crypto-js';
+import DOMPurify from 'dompurify';
 
 function CategoryEditScreen() {
     let history=useNavigate()
@@ -81,14 +82,14 @@ function CategoryEditScreen() {
                     : (
                         <Form onSubmit={submitHandler}>
 
-                        <Form.Group controlId='name'>
+                        <Form.Group>
                             <Form.Label>Category Name</Form.Label>
                             <Form.Control
 
                                 type='name'
                                 placeholder='Enter name'
                                 value={category_name}
-                                onChange={(e) => setCategory(e.target.value)}
+                                onChange={(e) => setCategory(DOMPurify.sanitize(e.target.value))}
                                 required
                             >
                             </Form.Control>

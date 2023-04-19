@@ -65,7 +65,7 @@ def createCategory(request):
 def updateCategory(request,pk):
     if 'Authorization' in request.headers:
         token=request.headers['Authorization']
-        
+        print("ABCD")
         if not token:
             raise AuthenticationFailed('Unauthenticated!')
         try:
@@ -79,15 +79,15 @@ def updateCategory(request,pk):
         user = Users.objects.filter(id=payload['id']).first()
         data = request.data
         if(user.is_superuser):
-            try:
+            # try:
                 category = Category.objects.get(id=pk)
                 category.category = data['category']
 
                 category.save()
                 
                 return Response("category Updated Successfully")
-            except:    
-                return Response("category Updation Failed")
+            # except:    
+            #     return Response("category Updation Failed")
         else:
 	        return Response("You are not an admin")
 

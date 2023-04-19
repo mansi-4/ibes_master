@@ -11,6 +11,7 @@ import { SIZE_UPDATE_RESET } from '../constants/sizeConstants'
 import {logout} from '../actions/userAction'
 import jwt_decode from "jwt-decode";
 import CryptoJS from 'crypto-js';
+import DOMPurify from 'dompurify'
 
 function SizeEditScreen() {
     let history=useNavigate()
@@ -83,14 +84,14 @@ function SizeEditScreen() {
                     : (
                         <Form onSubmit={submitHandler}>
 
-                        <Form.Group controlId='name'>
+                        <Form.Group>
                             <Form.Label>Size Name</Form.Label>
                             <Form.Control
 
                                 type='name'
                                 placeholder='Enter name'
                                 value={size_name}
-                                onChange={(e) => setSize(e.target.value)}
+                                onChange={(e) => setSize(DOMPurify.sanitize(e.target.value))}
                                 required
                             >
                             </Form.Control>

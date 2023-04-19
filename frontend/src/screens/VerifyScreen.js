@@ -38,7 +38,7 @@ function VerifyScreen() {
       {loading && <Loader/>}
       {verify && <Message variant="info">{verify}</Message>}
       <Form onSubmit={submitHandler}>
-        <Form.Group controlId="email">
+        <Form.Group>
             <Form.Label>Email Address</Form.Label>
             <Form.Control
             type="email"
