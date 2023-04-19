@@ -4,7 +4,7 @@ import { Card } from 'react-bootstrap'
 import Rating from "./Rating"
 function Product({product}) {
     const minPrice=Math.min(...product.variations.map(variation => variation.price));
-    const BASEURL='http://localhost:8003'
+    const BASEURL='https://ibes.offlinetoonline.in'
   return (
     <Card className="h-100 my-3 p-3 rounded">
         <Link to={`/product/${product.product_id}`}>

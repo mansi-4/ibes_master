@@ -148,13 +148,13 @@ def loginUser(request):
 
     access_token = {
             'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60),
             'iat': datetime.datetime.utcnow()
         }
     access_token = jwt.encode(access_token, 'secret', algorithm='HS256')  
     refresh_token = {
             'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
             'iat': datetime.datetime.utcnow()
         }
     refresh_token = jwt.encode(refresh_token, 'secret', algorithm='HS256')
@@ -223,23 +223,70 @@ def registerUser(request):
         token = jwt.encode(payload, 'secret', algorithm='HS256')  
         
         try:
-            send_mail(
-                subject='User Activation Link',
-                message=f'''
-                    Hi, {user.name}  \n
-                    your OfflineToOnline account is almost ready.\n 
-                    To activate your account please Click the following link.\n
-                    <a href="http://localhost:3000/user_activation/{token}">activate</a> \n 
-                    Please note that this activation link is valid only upto 1 hour. \n
-                    After you activate your account, you will be able to login.\n 
-                    Thanks & Regards, 
-                    OfflineToOnline Team.
-
-                ''',
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[user.email],
-                fail_silently=False
-            )
+            subject='User Activation Link'
+            message=''
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [user.email]
+            html_message = f"""
+                    <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Welcome to our website!</title>
+                            <style>
+                            body {{
+                                font-family: sans-serif;
+                                padding: 30px;
+                                text-align: center;
+                            }}
+                            .container {{
+                                max-width: 600px;
+                                margin: 0 auto;
+                                padding: 20px;
+                                background-color: #f8f8f8;
+                            }}
+                            h1 {{
+                                font-size: 36px;
+                                margin-bottom: 20px;
+                            }}
+                            p {{
+                                font-size: 18px;
+                                margin-bottom: 10px;
+                            }}
+                            a {{
+                                color: #007bff;
+                                text-decoration: none;
+                            }}
+                            a:hover {{
+                                text-decoration: underline;
+                            }}
+                            </style>
+                        </head>
+                        <body>
+                        <div class="container">
+                            <h1>Welcome to our website!</h1>
+                            <p>Dear {user.name},</p>
+                            <p>Thank you for registering with OfflineToOnline! To activate your account, please click on the link below:</p>
+                            <p><a href="https://ibes.offlinetoonline.in/#/user_activation/{token}">Activate your account</a></p>
+                            <p>Please note that this link is only valid for one hour from the time you received this email. If you do not activate your account within this time, you will need to send a new reactivation request.</p>
+                            <p>As a registered user, you'll have access to exclusive features and benefits that will make your shopping experience with us even better. Some of the perks of being a registered user include:</p>
+                            <ul>
+                            <li>Fast and easy checkout</li>
+                            <li>Order tracking and history</li>
+                            <li>Special promotions and discounts</li>
+                            <li>Saved payment methods and addresses for faster shopping</li>
+                            </ul>
+                            <p>We're always adding new features and improvements to make your shopping experience with us the best it can be, so stay tuned for even more benefits in the future.</p>
+                            <p>If you have any questions about your account or our website, please don't hesitate to contact our customer support team. They're available 24/7 to help you with anything you need.</p>
+                            <p>Thank you for considering to reactivate your account with us. We're excited to have you back as a customer and we look forward to serving you soon!</p>
+                            <p>Sincerely,<br>The OfflineToOnline Team</p>
+                        </div>
+                        </body>
+                        </html>
+                        """
+                
+            send_mail(subject, message, from_email, recipient_list, html_message=html_message)
+            
+            
             return Response("Email Verification Sent")
         except:
             return Response("Failed to send Email")
@@ -264,22 +311,67 @@ def verifyUser(request):
 
         token = jwt.encode(payload, 'secret', algorithm='HS256')
         try:
-            send_mail(
-                subject='Password Reset Link',
-                message=f'''
-                    Hi, \n 
-                    You recently requested to reset the password for your OfflineToOnline account.\n 
-                    Click the link below to proceed.\n
-                    http://localhost:3000/reset_password/{token} \n 
-                    Please note that this activation link is valid only upto 10 minutes. \n
-                    If you did not request a password reset, please ignore this email or reply to let us know.\n 
-                    Thanks & Regards, 
-                    OfflineToOnline Team.
-                ''',
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[email],
-                fail_silently=False
-            )
+            subject='Password Reset Link'
+            message=''
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [user.email]
+            html_message = f"""
+                    <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Password Reset Request</title>
+                            <style>
+                            body {{
+                                font-family: sans-serif;
+                                padding: 30px;
+                                text-align: center;
+                            }}
+                            .container {{
+                                max-width: 600px;
+                                margin: 0 auto;
+                                padding: 20px;
+                                background-color: #f8f8f8;
+                            }}
+                            h1 {{
+                                font-size: 36px;
+                                margin-bottom: 20px;
+                            }}
+                            p {{
+                                font-size: 18px;
+                                margin-bottom: 10px;
+                            }}
+                            a {{
+                                color: #007bff;
+                                text-decoration: none;
+                            }}
+                            a:hover {{
+                                text-decoration: underline;
+                            }}
+                            </style>
+                        </head>
+                        <body>
+                        <div class="container">
+                            <p>Dear {user.name},</p>
+
+                            <p>We received a request to reset the password for your account with OfflineToOnline. To reset your password, please click on the link below:</p>
+
+                            <a href="https://ibes.offlinetoonline.in/#/reset_password/{token}">Reset your password</a>
+
+                            <p>Please note that this link is only valid for 10 minutes from the time you received this email. If you do not reset your password within this time, you will need to submit another request.</p>
+
+                            <p>If you did not request a password reset, please ignore this email and your password will remain unchanged.</p>
+
+                            <p>If you have any questions or concerns, please don't hesitate to contact our customer support team. They're available 24/7 to help you with anything you need.</p>
+
+                            <p>Thank you for choosing to shop with us!</p>
+
+                            <p>Sincerely,<br>The OfflineToOnline Team</p>
+                        </div>
+                        </body>
+                        </html>
+                        """
+                
+            send_mail(subject, message, from_email, recipient_list, html_message=html_message)
             return Response("Email verification sent")
         except:
             return Response("Failed to send Email")
@@ -328,7 +420,7 @@ def reActivateUser(request):
                 <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Welcome to our website!</title>
+                        <title>Welcome back to our website!</title>
                         <style>
                         body {{
                             font-family: sans-serif;

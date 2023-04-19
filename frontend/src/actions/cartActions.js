@@ -5,7 +5,7 @@ import {
     CART_SAVE_SHIPPING_ADDRESS,
     CART_SAVE_PAYMENT_METHOD,
 } from '../constants/cartConstants'
-const BASEURL = 'http://localhost:8003';
+const BASEURL = 'https://ibes.offlinetoonline.in';
 
 export const addToCart = (id,qty) => async (dispatch,getState) => {
     const {data} = await axios.get(`${BASEURL}/api/products/${id}/variation/`)

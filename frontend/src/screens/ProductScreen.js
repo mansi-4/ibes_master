@@ -43,7 +43,7 @@ function ProductScreen() {
         error: errorProductReview,
         success: successProductReview,
     } = productReviewCreate
-    const BASEURL='http://localhost:8003'
+    const BASEURL='https://ibes.offlinetoonline.in'
 
     
     useEffect(()=>{
@@ -69,7 +69,7 @@ function ProductScreen() {
 
     function addToCartHandler() {
         // ${qty}
-        history(`/cart/${variation.product_variation_id}?qty=1`)
+        history(`/cart/${variation.product_variation_id}?qty=`+qty)
     }
 
     const submitHandler = (e) => {

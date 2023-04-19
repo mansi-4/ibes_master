@@ -27,7 +27,7 @@ import {
 
     
 } from '../constants/sizeConstants'
-const BASEURL = 'http://localhost:8003';
+const BASEURL = 'https://ibes.offlinetoonline.in';
 
 export const listSizes = () => async (dispatch) => {
     try{

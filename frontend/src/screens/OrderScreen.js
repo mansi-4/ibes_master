@@ -38,7 +38,7 @@ function OrderScreen() {
     }
 
     const [shipping_status,setShippingStatus]=useState("")
-    const BASEURL='http://localhost:8003'
+    const BASEURL='https://ibes.offlinetoonline.in'
 
     useEffect(() => {
         if (userInfo) {
@@ -274,7 +274,7 @@ function OrderScreen() {
                                 
                                 {/* paid buttons will come here */}
                                 {loadingPay && <Loader />}
-                                {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) && order.paymentMethod==="Cash On Delivery" && !order.isPaid &&(
+                                {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)!=='false' && order.paymentMethod==="Cash On Delivery" && !order.isPaid &&(
                                     <ListGroup.Item className="text-center Hide" > 
                                         <Button
                                             type='button'
@@ -288,7 +288,7 @@ function OrderScreen() {
                                 
                             </Card>
                             <br></br>
-                            {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8) && !order.isDelivered && (<Card>
+                            {userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)!=='false' && !order.isDelivered && (<Card>
                                 <ListGroup variant='flush' className="Hide">
                                     <ListGroup.Item>
                                         <h2>Shipping Status</h2>

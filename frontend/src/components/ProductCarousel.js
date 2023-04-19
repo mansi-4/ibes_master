@@ -11,7 +11,7 @@ function ProductCarousel() {
 
     const productTopRated = useSelector(state => state.productTopRated)
     const { error, loading, products } = productTopRated
-    const BASEURL='http://localhost:8003'
+    const BASEURL='https://ibes.offlinetoonline.in'
  
     useEffect(() => {
         dispatch(listTopProducts())

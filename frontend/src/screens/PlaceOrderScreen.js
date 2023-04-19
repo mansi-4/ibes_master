@@ -32,7 +32,7 @@ function PlaceOrderScreen() {
     if (!cart.paymentMethod) {
         history('/payment')
     }
-    const BASEURL='http://localhost:8003'
+    const BASEURL='https://ibes.offlinetoonline.in'
 
     useEffect(() => {
         if(userInfo){

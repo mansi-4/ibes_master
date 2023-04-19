@@ -31,7 +31,7 @@ function CustomerOrderScreen() {
     if(!loading && !error){
         customer_order.itemsPrice = customer_order.orderItems.reduce((acc, item) => acc + item.price * item.qty, 0).toFixed(2)
     }
-    const BASEURL='http://localhost:8003'
+    const BASEURL='https://ibes.offlinetoonline.in'
 
     useEffect(() => {
         if (userInfo && CryptoJS.AES.decrypt(userInfo.basic, secretKey).toString(CryptoJS.enc.Utf8)) {
@@ -225,7 +225,7 @@ function CustomerOrderScreen() {
                                     <ListGroup.Item>
                                         <Row>
                                             <Col>Discount:</Col>
-                                            <Col>&#8377;{customer_order.discountPercentage}</Col>
+                                            <Col>{customer_order.discountPercentage} %</Col>
                                         </Row>
                                     </ListGroup.Item>
 

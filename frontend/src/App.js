@@ -1,5 +1,5 @@
 import { Container } from 'react-bootstrap'
-import { BrowserRouter,Route,Routes } from 'react-router-dom'
+import { HashRouter,Route,Routes } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomeScreen from './screens/HomeScreen'
@@ -32,7 +32,7 @@ import ProductEditScreen from './screens/ProductEditScreen'
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Header/>
        <main className='py-3'>
         <Container>
@@ -71,7 +71,7 @@ function App() {
         </Container>
        </main>
        <Footer/>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

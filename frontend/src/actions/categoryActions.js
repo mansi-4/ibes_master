@@ -27,7 +27,7 @@ import {
 
     
 } from '../constants/categoryConstants'
-const BASEURL = 'http://localhost:8003';
+const BASEURL = 'https://ibes.offlinetoonline.in';
 
 export const listCategories = () => async (dispatch) => {
     try{
